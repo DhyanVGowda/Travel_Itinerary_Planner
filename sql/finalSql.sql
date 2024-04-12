@@ -24,7 +24,7 @@ CREATE TABLE Trip (
     trip_name VARCHAR(255) not null,
     start_date DATE,
     end_date DATE,
-    trip_status enum('Planning In Progress','Planned Succesfully','Ongoing', 'Completed') not null
+    trip_status enum('Planning In Progress','Planned Successfully','Ongoing', 'Completed') not null
 );
 
 CREATE TABLE Expense (
@@ -73,7 +73,7 @@ CREATE TABLE Activity_AdventureSport (
     FOREIGN KEY (activity_id) REFERENCES Activity(activity_id)
 );
 
-CREATE TABLE Accomodation_HomeStay (
+CREATE TABLE Accommodation_HomeStay (
     accommodation_id INT AUTO_INCREMENT primary key,
     accommodation_name VARCHAR(255) not null,
     cost_per_night DECIMAL(10, 2) not null,
@@ -93,7 +93,7 @@ CREATE TABLE Accomodation_HomeStay (
     FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Accomodation_Hotel (
+CREATE TABLE Accommodation_Hotel (
    accommodation_id INT AUTO_INCREMENT primary key,
     accommodation_name VARCHAR(255) not null,
     cost_per_night DECIMAL(10, 2) not null,
@@ -112,7 +112,7 @@ CREATE TABLE Accomodation_Hotel (
     FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Accomodation_Hostel (
+CREATE TABLE Accommodation_Hostel (
    accommodation_id INT AUTO_INCREMENT primary key,
     accommodation_name VARCHAR(255) not null,
     cost_per_night DECIMAL(10, 2) not null,
