@@ -1,126 +1,72 @@
--- Trigger 1: Example trigger on the Traveller table
+DELIMITER //
+CREATE TRIGGER trg_trip_update
+AFTER INSERT ON Trip
+FOR EACH ROW
+BEGIN
+    -- Inserting the record details into the Audit_Log table
+    INSERT INTO Audit_Log (table_name, action, record_details, timestamp)
+    VALUES ('Trip', 'INSERT', CONCAT('Inserted trip with ID: ', NEW.trip_id, ', Name: ', NEW.trip_name), NOW());
+END;
+//
+
+CREATE TRIGGER trg_trip_update
+AFTER UPDATE ON Trip
+FOR EACH ROW
+BEGIN
+    -- Inserting the record details into the Audit_Log table
+    INSERT INTO Audit_Log (table_name, action, record_details, timestamp)
+    VALUES ('Trip', 'UPDATE', CONCAT('Updated trip with ID: ', NEW.trip_id, ', Name: ', NEW.trip_name), NOW());
+END;
+//
+
+CREATE TRIGGER trg_trip_update
+AFTER DELETE ON Trip
+FOR EACH ROW
+BEGIN
+    -- Inserting the record details into the Audit_Log table
+    INSERT INTO Audit_Log (table_name, action, record_details, timestamp)
+    VALUES ('Trip', 'DELETE', CONCAT('Deleted trip with ID: ', OLD.trip_id, ', Name: ', OLD.trip_name), NOW());
+END;
+//
+DELIMITER ;
+
 DELIMITER //
 CREATE TRIGGER trg_traveller_insert
 AFTER INSERT ON Traveller
 FOR EACH ROW
 BEGIN
-    -- Trigger action (example)
-    INSERT INTO Audit_Trail (table_name, action, timestamp)
-    VALUES ('Traveller', 'INSERT', NOW());
+    -- Inserting the record details into the Audit_Log table
+    INSERT INTO Audit_Log (table_name, action, record_details, timestamp)
+    VALUES ('Traveller', 'INSERT', CONCAT('Inserted traveller with email ID: ', NEW.email_id, ', Name: ', NEW.first_name, ' ', NEW.last_name), NOW());
+END;
+//
+
+CREATE TRIGGER trg_traveller_update
+AFTER UPDATE ON Traveller
+FOR EACH ROW
+BEGIN
+    -- Inserting the record details into the Audit_Log table
+    INSERT INTO Audit_Log (table_name, action, record_details, timestamp)
+    VALUES ('Traveller', 'UPDATE', CONCAT('Updated traveller with email ID: ', NEW.email_id, ', Name: ', NEW.first_name, ' ', NEW.last_name), NOW());
+END;
+//
+
+CREATE TRIGGER trg_traveller_delete
+AFTER DELETE ON Traveller
+FOR EACH ROW
+BEGIN
+    -- Inserting the record details into the Audit_Log table
+    INSERT INTO Audit_Log (table_name, action, record_details, timestamp)
+    VALUES ('Traveller', 'DELETE', CONCAT('Deleted traveller with email ID: ', OLD.email_id, ', Name: ', OLD.first_name, ' ', OLD.last_name), NOW());
 END;
 //
 DELIMITER ;
 
--- Trigger 2: Example trigger on the Trip table
-DELIMITER //
-CREATE TRIGGER trg_trip_update
-BEFORE UPDATE ON Trip
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    UPDATE Audit_Log SET last_updated = NOW() WHERE table_name = 'Trip';
-END;
-//
-DELIMITER ;
 
--- Trigger 3: Example trigger on the Expense table
-DELIMITER //
-CREATE TRIGGER trg_expense_delete
-BEFORE DELETE ON Expense
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    INSERT INTO Deleted_Records (table_name, record_id, deleted_at)
-    VALUES ('Expense', OLD.expense_id, NOW());
-END;
-//
-DELIMITER ;
-
--- Trigger 4: Example trigger on the Destination table
-DELIMITER //
-CREATE TRIGGER trg_destination_insert
-AFTER INSERT ON Destination
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    INSERT INTO Audit_Log (table_name, action, timestamp)
-    VALUES ('Destination', 'INSERT', NOW());
-END;
-//
-DELIMITER ;
-
--- Trigger 5: Example trigger on the Activity table
-DELIMITER //
-CREATE TRIGGER trg_activity_update
-BEFORE UPDATE ON Activity
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    UPDATE Audit_Trail SET action = 'UPDATE' WHERE table_name = 'Activity';
-END;
-//
-DELIMITER ;
-
--- Trigger 6: Example trigger on the Activity_SightSeeing table
-DELIMITER //
-CREATE TRIGGER trg_activity_sightseeing_insert
-AFTER INSERT ON Activity_SightSeeing
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    INSERT INTO Audit_Log (table_name, action, timestamp)
-    VALUES ('Activity_SightSeeing', 'INSERT', NOW());
-END;
-//
-DELIMITER ;
-
--- Trigger 7: Example trigger on the Accommodation_HomeStay table
-DELIMITER //
-CREATE TRIGGER trg_accommodation_homestay_update
-BEFORE UPDATE ON Accommodation_HomeStay
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    UPDATE Audit_Trail SET last_updated = NOW() WHERE table_name = 'Accommodation_HomeStay';
-END;
-//
-DELIMITER ;
-
--- Trigger 8: Example trigger on the Accommodation_Hotel table
-DELIMITER //
-CREATE TRIGGER trg_accommodation_hotel_delete
-BEFORE DELETE ON Accommodation_Hotel
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    INSERT INTO Deleted_Records (table_name, record_id, deleted_at)
-    VALUES ('Accommodation_Hotel', OLD.accommodation_id, NOW());
-END;
-//
-DELIMITER ;
-
--- Trigger 9: Example trigger on the Accommodation_Hostel table
-DELIMITER //
-CREATE TRIGGER trg_accommodation_hostel_insert
-AFTER INSERT ON Accommodation_Hostel
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    INSERT INTO Audit_Log (table_name, action, timestamp)
-    VALUES ('Accommodation_Hostel', 'INSERT', NOW());
-END;
-//
-DELIMITER ;
-
--- Trigger 10: Example trigger on the EssentialPackingItems table
-DELIMITER //
-CREATE TRIGGER trg_essential_items_delete
-BEFORE DELETE ON EssentialPackingItems
-FOR EACH ROW
-BEGIN
-    -- Trigger action (example)
-    INSERT INTO Deleted_Records (table_name, record_id, deleted_at)
-    VALUES ('EssentialPackingItems', OLD.item_id, NOW());
-END;
-//
-DELIMITER ;
+CREATE TABLE Audit_Log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    table_name VARCHAR(255) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    record_details TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
