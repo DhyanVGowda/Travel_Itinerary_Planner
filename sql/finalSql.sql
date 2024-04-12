@@ -163,4 +163,11 @@ CREATE TABLE Trip_Has_Destination (
 	 FOREIGN KEY (trip_id) REFERENCES Trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE Audit_Log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    table_name VARCHAR(255) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    record_details TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
