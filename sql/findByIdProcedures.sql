@@ -86,10 +86,18 @@ END //
 
 DELIMITER ;
 
--- Get	
+-- GetTripsByTravellerEmail
 DELIMITER //
 CREATE PROCEDURE GetTripsByTravellerEmail(IN email_id VARCHAR(255))
 BEGIN
     select * from trip where trip_id in (select trip_id from traveller_plans_trip where traveller_plans_trip.email_id=email_id);
+END//
+DELIMITER ;
+
+-- GetDestinationsByTripID
+DELIMITER //
+CREATE PROCEDURE GetDestinationsByTripID(IN trip_id int)
+BEGIN
+    select * from destination where destination_id in (select destination_id from trip_has_destination where trip_has_destination.trip_id=trip_id);
 END//
 DELIMITER ;
