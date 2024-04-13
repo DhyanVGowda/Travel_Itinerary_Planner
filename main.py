@@ -73,14 +73,19 @@ def signup():
 
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddTraveller', [email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state,
-                                         zip_code])
+        cursor.callproc('AddTraveller',
+                        [email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state, zip_code])
         connection.commit()
         return jsonify({'message': 'Signup successful'}), 201
-    except Error as e:
+    except pymysql.err.InternalError as e:
         connection.rollback()
-        print("Failed to sign up traveller: ", str(e))
-        return jsonify({'error': 'Signup failed due to database error'}), 500
+        if e.args[0] == 1644:
+            return jsonify({'error': e.args[1]}), 400
+        else:
+            return jsonify({'error': 'Signup failed due to database error'}), 500
+    except pymysql.Error as e:
+        connection.rollback()
+        return jsonify({'error':str(e)}), 500
     finally:
         cursor.close()
 
@@ -118,8 +123,194 @@ def login():
         cursor.close()
 
 
+@app.route('/Traveller/<email>', methods=['DELETE'])
+def delete_traveller(email):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteTravellerByEmail', [email])
+        connection.commit()
+        return jsonify({'message': 'Traveller deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete traveller: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Trip/<int:trip_id>', methods=['DELETE'])
+def delete_trip(trip_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteTripById', [trip_id])
+        connection.commit()
+        return jsonify({'message': 'Trip deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete trip: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Destination/<int:dest_id>', methods=['DELETE'])
+def delete_destination(dest_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteDestinationById', [dest_id])
+        connection.commit()
+        return jsonify({'message': 'Destination deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete destination: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Activity/<int:activity_id>', methods=['DELETE'])
+def delete_activity(activity_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteActivityById', [activity_id])
+        connection.commit()
+        return jsonify({'message': 'Activity deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete activity: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Expense/<int:exp_id>', methods=['DELETE'])
+def delete_expense(exp_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteExpenseById', [exp_id])
+        connection.commit()
+        return jsonify({'message': 'Expense deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete expense: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Activity_SightSeeing/<int:act_id>', methods=['DELETE'])
+def delete_sightseeing_activity(act_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteSightseeingActivityById', [act_id])
+        connection.commit()
+        return jsonify({'message': 'Sightseeing activity deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete sightseeing activity: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Activity_AdventureSport/<int:act_id>', methods=['DELETE'])
+def delete_adventure_sport_activity(act_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteAdventureSportActivityById', [act_id])
+        connection.commit()
+        return jsonify({'message': 'Adventure sport activity deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete adventure sport activity: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Accommodation_HomeStay/<int:accom_id>', methods=['DELETE'])
+def delete_homestay(accom_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteHomeStayAccommodationById', [accom_id])
+        connection.commit()
+        return jsonify({'message': 'Homestay accommodation deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete homestay accommodation: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Accommodation_Hotel/<int:accom_id>', methods=['DELETE'])
+def delete_hotel(accom_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteHotelAccommodationById', [accom_id])
+        connection.commit()
+        return jsonify({'message': 'Hotel accommodation deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete hotel accommodation: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Accommodation_Hostel/<int:accom_id>', methods=['DELETE'])
+def delete_hostel(accom_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteHostelAccommodationById', [accom_id])
+        connection.commit()
+        return jsonify({'message': 'Hostel accommodation deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete hostel accommodation: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/EssentialPackingItems/<int:item_id>', methods=['DELETE'])
+def delete_packing_item(item_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteEssentialPackingItemById', [item_id])
+        connection.commit()
+        return jsonify({'message': 'Packing item deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete packing item: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Trip_Requires_Item/<int:trip_id>/<int:item_id>', methods=['DELETE'])
+def delete_trip_required_item(trip_id, item_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteTripRequiredItem', [trip_id, item_id])
+        connection.commit()
+        return jsonify({'message': 'Trip required item deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete trip required item: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Traveller_Plans_Trip/<email>/<int:trip_id>', methods=['DELETE'])
+def delete_traveller_trip_plan(email, trip_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteTravellerTripPlan', [email, trip_id])
+        connection.commit()
+        return jsonify({'message': 'Traveller trip plan deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete traveller trip plan: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
 if __name__ == '__main__':
     username = "root"
-    password = "parrvaltd118"
+    password = "Anvitha@2024"
     connection = connect_to_database(username, password)
-    app.run(debug=True)
+    if connection is not None:
+        app.run(debug=True)
+    else:
+        print("Cant connect to db")
+        exit(-1)
