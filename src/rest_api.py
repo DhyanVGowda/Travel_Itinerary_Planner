@@ -20,3 +20,16 @@ def fetch_trips(email):
         return pd.DataFrame(response.json())
     else:
         return pd.DataFrame(), "Failed to fetch trips."
+
+
+def add_trip(trip_data):
+    # Make a POST request to the add trip API endpoint
+    response = requests.post(f"{FLASK_SERVER_URL}/createTrip", json=trip_data)
+    print(response.status_code)
+    return response
+
+
+def delete_trip(trip_id):
+    # Make a DELETE request to the delete trip API endpoint
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteTrip/{trip_id}")
+    return response

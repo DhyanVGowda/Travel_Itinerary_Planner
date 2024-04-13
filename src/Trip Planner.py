@@ -1,3 +1,5 @@
+import time
+
 import streamlit as st
 from streamlit_option_menu import option_menu
 
@@ -32,12 +34,11 @@ def signup_page():
     with st.form("signup_form"):
         st.subheader('Sign Up')
         email = st.text_input('Email')
-        password = st.text_input('Password', type='password')
         mobile = st.text_input('Mobile')
         fname = st.text_input('First Name')
         lname = st.text_input('Last Name')
         gen = st.text_input('Gender')
-        dob = st.date_input('Date of Birth')
+        dob = st.date_input('Date of Birth', None)
         unit = st.text_input('Unit')
         street = st.text_input('Street')
         street_no = st.text_input('Street Number')
@@ -52,12 +53,11 @@ def signup_page():
             else:
                 signup_data = {
                     'email': email,
-                    'password': password,
                     'mobile': mobile,
                     'fname': fname,
                     'lname': lname,
                     'gen': gen,
-                    'dob': dob.isoformat(),  # converting date to string
+                    'dob': dob.isoformat() if dob else None,  # converting date to string
                     'unit': unit,
                     'street': street,
                     'street_no': street_no,
@@ -108,17 +108,6 @@ def to_excel(df):
     return processed_data
 
 
-
-def add_trip(trip_data):
-    # Make a POST request to the add trip API endpoint
-    response = requests.post(f"{FLASK_SERVER_URL}/createTrip", json=trip_data)
-    return response
-
-def delete_trip(trip_id):
-    # Make a DELETE request to the delete trip API endpoint
-    response = requests.delete(f"{FLASK_SERVER_URL}/deleteTrip/{trip_id}")
-    return response
-
 def display_trips():
     st.subheader("Your Trips")
 
@@ -142,7 +131,6 @@ def display_trips():
                 st.download_button("Download Excel", trips_df.to_excel(), "trips.xlsx",
                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-
             # Add functionality to delete a trip
             delete_trip_index = st.selectbox('Select a trip to delete (by index)', trips_df.index)
             if st.button('Delete Trip'):
@@ -161,25 +149,31 @@ def display_trips():
     st.subheader('Add New Trip')
     with st.form("add_trip_form"):
         new_trip_name = st.text_input('Trip Name')
-        new_start_date = st.date_input('Start Date')
-        new_end_date = st.date_input('End Date')
-        new_status = st.selectbox('Status', ['Planning In Progress','Planned Successfully','Ongoing', 'Completed'])
+        new_start_date = st.date_input('Start Date', None)
+        new_end_date = st.date_input('End Date', None)
+        new_status = st.selectbox('Status', ['Planning In Progress', 'Planned Successfully', 'Ongoing', 'Completed'])
         submit_new_trip = st.form_submit_button('Add Trip')
 
         if submit_new_trip:
-            new_trip_data = {
-                'email': st.session_state['user_email'],
-                'trip_name': new_trip_name,
-                'start_date': new_start_date.isoformat(),
-                'end_date': new_end_date.isoformat(),
-                'status': new_status
-            }
-            response = add_trip(new_trip_data)  # Make sure this function is implemented to send the POST request
-            if response.status_code == 201:
-                st.success('New trip added successfully.')
-                st.experimental_rerun()
+            if not new_trip_name:
+                st.error('Trip Name is required.')
             else:
-                st.error('Failed to add new trip.')
+                new_trip_data = {
+                    'email': st.session_state['user_email'],
+                    'trip_name': new_trip_name,
+                    'start_date': new_start_date.isoformat() if new_start_date else None,
+                    'end_date': new_end_date.isoformat() if new_end_date else None,
+                    'status': new_status
+                }
+                response = add_trip(new_trip_data)  # Make sure this function is implemented to send the POST request
+                if response.status_code == 201:
+                    st.success('New trip added successfully.')
+                    time.sleep(1)
+                    st.experimental_rerun()
+
+                else:
+                    st.error('Failed to add new trip.')
+
 
 def main():
     st.title('Travel Itinerary App')
