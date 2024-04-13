@@ -3,6 +3,9 @@ from streamlit_option_menu import option_menu
 
 from rest_api import *
 
+import base64
+from io import BytesIO
+
 # Constants for Flask server
 FLASK_SERVER_URL = "http://127.0.0.1:5000"
 
@@ -96,29 +99,86 @@ def update_trip(trip_update_data):
     return response.ok
 
 
+def to_excel(df):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name='Sheet1')
+    writer.save()
+    processed_data = output.getvalue()
+    return processed_data
+
+
+
+def add_trip(trip_data):
+    # Make a POST request to the add trip API endpoint
+    response = requests.post(f"{FLASK_SERVER_URL}/addTrip", json=trip_data)
+    return response
+
+def delete_trip(trip_id):
+    # Make a DELETE request to the delete trip API endpoint
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteTrip/{trip_id}")
+    return response
+
 def display_trips():
     st.subheader("Your Trips")
+
+    # First, display existing trips if any
     if 'user_email' in st.session_state:
         trips_df, error = fetch_trips(st.session_state['user_email'])
-
         if not trips_df.empty:
-            # Assuming the last 4 columns are 'trip_name', 'start_date', 'end_date', 'trip_status'
-            # and they are in the correct order in the DataFrame
-            trips_df = trips_df.iloc[:, -4:]  # Select only the last 4 columns
+            trips_df_1 = trips_df.iloc[:, -4:]
 
-            # Now rename the columns to have more readable names
-            # The order should match the last 4 columns in your DataFrame
-            trips_df.columns = ['Trip Name', 'Start Date', 'End Date', 'Status']
+            trips_df_1.columns = ['Trip Name', 'Start Date', 'End Date', 'Status']
 
-            # Ensure dates are in the correct format, assuming they are not already
-            trips_df['Start Date'] = pd.to_datetime(trips_df['Start Date']).dt.strftime('%Y-%m-%d')
-            trips_df['End Date'] = pd.to_datetime(trips_df['End Date']).dt.strftime('%Y-%m-%d')
+            trips_df_1['Start Date'] = pd.to_datetime(trips_df_1['Start Date']).dt.strftime('%Y-%b-%d')
+            trips_df_1['End Date'] = pd.to_datetime(trips_df_1['End Date']).dt.strftime('%Y-%b-%d')
 
-            # Display the DataFrame using st.table to keep the headers fixed
-            st.table(trips_df)
+            st.table(trips_df_1)
+
+            export_format = st.radio("Export Format", ("CSV", "Excel"))
+            if export_format == "CSV":
+                st.download_button("Download CSV", trips_df.to_csv(), "trips.csv", "text/csv")
+            elif export_format == "Excel":
+                st.download_button("Download Excel", trips_df.to_excel(), "trips.xlsx",
+                                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+            # Add functionality to delete a trip
+            delete_trip_index = st.selectbox('Select a trip to delete (by index)', trips_df.index)
+            if st.button('Delete Trip'):
+                trip_id_to_delete = trips_df.loc[delete_trip_index, 'Trip ID']  # Replace with actual ID column name
+                response = delete_trip(trip_id_to_delete)
+                if response.status_code == 200:
+                    st.success(f"Trip {trip_id_to_delete} deleted successfully.")
+                    st.experimental_rerun()
+                else:
+                    st.error('Failed to delete the trip.')
+
         else:
             st.error(error or "No trips found.")
 
+    # Interface to add a new trip
+    st.subheader('Add New Trip')
+    with st.form("add_trip_form"):
+        new_trip_name = st.text_input('Trip Name')
+        new_start_date = st.date_input('Start Date')
+        new_end_date = st.date_input('End Date')
+        new_status = st.selectbox('Status', ['Planning', 'Ongoing', 'Completed'])
+        submit_new_trip = st.form_submit_button('Add Trip')
+
+        if submit_new_trip:
+            new_trip_data = {
+                'trip_name': new_trip_name,
+                'start_date': new_start_date.isoformat(),
+                'end_date': new_end_date.isoformat(),
+                'status': new_status
+            }
+            response = add_trip(new_trip_data)  # Make sure this function is implemented to send the POST request
+            if response.status_code == 201:
+                st.success('New trip added successfully.')
+                st.experimental_rerun()
+            else:
+                st.error('Failed to add new trip.')
 
 def main():
     st.title('Travel Itinerary App')
