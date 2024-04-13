@@ -95,7 +95,7 @@ def login():
 
 
 if __name__ == '__main__':
-    username = ""
-    password = ""
+    username = "root"
+    password = "parrvaltd118"
     connection = connect_to_database(username, password)
     app.run(debug=True)
