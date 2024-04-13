@@ -73,14 +73,19 @@ def signup():
 
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddTraveller', [email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state,
-                                         zip_code])
+        cursor.callproc('AddTraveller',
+                        [email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state, zip_code])
         connection.commit()
         return jsonify({'message': 'Signup successful'}), 201
-    except Error as e:
+    except pymysql.err.InternalError as e:
         connection.rollback()
-        print("Failed to sign up traveller: ", str(e))
-        return jsonify({'error': 'Signup failed due to database error'}), 500
+        if e.args[0] == 1644:
+            return jsonify({'error': e.args[1]}), 400
+        else:
+            return jsonify({'error': 'Signup failed due to database error'}), 500
+    except pymysql.Error as e:
+        connection.rollback()
+        return jsonify({'error':str(e)}), 500
     finally:
         cursor.close()
 
@@ -120,6 +125,6 @@ def login():
 
 if __name__ == '__main__':
     username = "root"
-    password = "parrvaltd118"
+    password = "Anvitha@2024"
     connection = connect_to_database(username, password)
     app.run(debug=True)
