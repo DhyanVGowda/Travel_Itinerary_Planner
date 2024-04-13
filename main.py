@@ -309,4 +309,8 @@ if __name__ == '__main__':
     username = "root"
     password = "Anvitha@2024"
     connection = connect_to_database(username, password)
-    app.run(debug=True)
+    if connection is not None:
+        app.run(debug=True)
+    else:
+        print("Cant connect to db")
+        exit(-1)
