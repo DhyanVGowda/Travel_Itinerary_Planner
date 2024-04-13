@@ -47,6 +47,7 @@ def get_trips(email):
     if trips:
         return jsonify(trips), 200
 
+
 def check_empty(value):
     if value == '':
         return None
@@ -119,6 +120,6 @@ def login():
 
 if __name__ == '__main__':
     username = "root"
-    password = "anshuman"
+    password = "parrvaltd118"
     connection = connect_to_database(username, password)
     app.run(debug=True)
