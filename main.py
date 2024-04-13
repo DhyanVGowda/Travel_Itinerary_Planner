@@ -32,28 +32,43 @@ def call_addtraveller(connection, email, mobile, fname, lname, gen, dob, unit, s
     finally:
         cursor.close()
 
+
+@app.route('/trips/<email>', methods=['GET'])
+def get_trips(email):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetTripsByTravellerEmail', [email])
+        trips = cursor.fetchall()
+    except Error as e:
+        print("Failed to retrieve trips: ", e)
+        return jsonify({'error': 'Failed to retrieve trips'}), 500
+    finally:
+        cursor.close()
+    if trips:
+        return jsonify(trips), 200
+
+def check_empty(value):
+    if value == '':
+        return None
+    return value
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
     email = data.get('email')
     mobile = data.get('mobile')
-
-    if not email:
-        return jsonify({'error': 'Email is required'}), 400
-
-    if not mobile:
-        return jsonify({'error': 'Mobile Number is required'}), 400
-
     fname = data.get('fname')
-    lname = data.get('lname')
-    gen = data.get('gen')
-    dob = data.get('dob')
-    unit = data.get('unit')
-    street = data.get('street')
-    street_no = data.get('street_no')
-    city = data.get('city')
-    state = data.get('state')
-    zip_code = data.get('zip')
+
+    lname = check_empty(data.get('lname'))
+    gen = check_empty(data.get('gen'))
+    dob = check_empty(data.get('dob'))
+    unit = check_empty(data.get('unit'))
+    street = check_empty(data.get('street'))
+    street_no = check_empty(data.get('street_no'))
+    city = check_empty(data.get('city'))
+    state = check_empty(data.get('state'))
+    zip_code = check_empty(data.get('zip'))
 
     try:
         cursor = connection.cursor()
@@ -67,6 +82,7 @@ def signup():
         return jsonify({'error': 'Signup failed due to database error'}), 500
     finally:
         cursor.close()
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -89,7 +105,7 @@ def login():
             if phone_number == password:
                 print("Login successful!")
                 print("Traveller Details:")
-                return jsonify({'message': 'Login successful'}), 200
+                return jsonify(traveller), 200
             else:
                 return jsonify({'error': 'Incorrect password'}), 401
         else:
@@ -103,6 +119,6 @@ def login():
 
 if __name__ == '__main__':
     username = "root"
-    password = "Anvitha@2024"
+    password = "parrvaltd118"
     connection = connect_to_database(username, password)
     app.run(debug=True)
