@@ -111,7 +111,7 @@ def to_excel(df):
 
 def add_trip(trip_data):
     # Make a POST request to the add trip API endpoint
-    response = requests.post(f"{FLASK_SERVER_URL}/addTrip", json=trip_data)
+    response = requests.post(f"{FLASK_SERVER_URL}/createTrip", json=trip_data)
     return response
 
 def delete_trip(trip_id):
@@ -163,11 +163,12 @@ def display_trips():
         new_trip_name = st.text_input('Trip Name')
         new_start_date = st.date_input('Start Date')
         new_end_date = st.date_input('End Date')
-        new_status = st.selectbox('Status', ['Planning', 'Ongoing', 'Completed'])
+        new_status = st.selectbox('Status', ['Planning In Progress','Planned Successfully','Ongoing', 'Completed'])
         submit_new_trip = st.form_submit_button('Add Trip')
 
         if submit_new_trip:
             new_trip_data = {
+                'email': st.session_state['user_email'],
                 'trip_name': new_trip_name,
                 'start_date': new_start_date.isoformat(),
                 'end_date': new_end_date.isoformat(),
