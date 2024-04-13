@@ -15,10 +15,13 @@ CREATE PROCEDURE AddTraveller(
     IN zip VARCHAR(20)
 )
 BEGIN
-    INSERT INTO Traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number, street_name, street_number, city, state, zipcode)
-    VALUES (email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state, zip);
+    IF EXISTS (SELECT 1 FROM Traveller WHERE email_id = email) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'An account with this email already exists.';
+    ELSE
+        INSERT INTO Traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number, street_name, street_number, city, state, zipcode)
+        VALUES (email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state, zip);
+    END IF;
 END //
-DELIMITER ;
 
 -- Procedure to delete a traveller by email
 DELIMITER //
