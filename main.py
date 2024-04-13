@@ -34,68 +34,75 @@ def call_addtraveller(connection, email, mobile, fname, lname, gen, dob, unit, s
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    data = request.json
-    email = data['email']
-    password = data['password']
-    mobile = data['mobile']
-    fname = data['fname']
-    lname = data['lname']
-    gen = data['gen']
-    dob = data['dob']
-    unit = data['unit']
-    street = data['street']
-    street_no = data['street_no']
-    city = data['city']
-    state = data['state']
-    zip_code = data['zip']
+    data = request.get_json()
+    email = data.get('email')
+    mobile = data.get('mobile')
 
-    success = call_addtraveller(connection, email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state,
-                                zip_code)
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
 
-    if success:
-        return jsonify({'message': 'Signup successful'}), 201
-    else:
-        return jsonify({'error': 'Signup failed'}), 400
+    if not mobile:
+        return jsonify({'error': 'Mobile Number is required'}), 400
 
+    fname = data.get('fname')
+    lname = data.get('lname')
+    gen = data.get('gen')
+    dob = data.get('dob')
+    unit = data.get('unit')
+    street = data.get('street')
+    street_no = data.get('street_no')
+    city = data.get('city')
+    state = data.get('state')
+    zip_code = data.get('zip')
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    email = data['email']
-    password = data['password']
-
-    #valid = call_gettravellerbyemail(email, password)
     try:
         cursor = connection.cursor()
-        cursor.callproc('GetTravellerByEmail', [email])
-        valid = False
-        traveller = cursor.fetchone()
-        phone_number = traveller[1]
-        if traveller:
-            if phone_number == password:
-                print("Login successful!")
-                print("Traveller Details:")
-                columns = [desc[0] for desc in cursor.description]
-                valid = True
-            else:
-                print("Incorrect password.")
-        if not valid:
-            print("Login failed. Incorrect email or password.")
-        return valid
+        cursor.callproc('AddTraveller', [email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state,
+                                         zip_code])
+        connection.commit()
+        return jsonify({'message': 'Signup successful'}), 201
     except Error as e:
-        print("Failed to retrieve traveller: ", e)
-        return False
+        connection.rollback()
+        print("Failed to sign up traveller: ", str(e))
+        return jsonify({'error': 'Signup failed due to database error'}), 500
     finally:
         cursor.close()
 
-    if valid:
-        return jsonify({'message': 'Login successful'}), 200
-    else:
-        return jsonify({'error': 'Login failed. Incorrect email or password'}), 401
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
+
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetTravellerByEmail', [email])
+        traveller = cursor.fetchone()
+        if traveller:
+            phone_number = traveller[1]
+            if phone_number == password:
+                print("Login successful!")
+                print("Traveller Details:")
+                return jsonify({'message': 'Login successful'}), 200
+            else:
+                return jsonify({'error': 'Incorrect password'}), 401
+        else:
+            return jsonify({'error': 'No traveller found with the provided email'}), 404
+    except Error as e:
+        print("Failed to retrieve traveller: ", str(e))
+        return jsonify({'error': 'Database error'}), 500
+    finally:
+        cursor.close()
 
 
 if __name__ == '__main__':
-    username = ""
-    password = ""
+    username = "root"
+    password = "Anvitha@2024"
     connection = connect_to_database(username, password)
     app.run(debug=True)
