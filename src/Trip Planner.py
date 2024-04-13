@@ -22,26 +22,30 @@ def signup_page():
         signup_button = st.form_submit_button('Sign Up')
 
         if signup_button:
-            signup_data = {
-                'email': email,
-                'password': password,
-                'mobile': mobile,
-                'fname': fname,
-                'lname': lname,
-                'gen': gen,
-                'dob': dob.isoformat(),  # converting date to string
-                'unit': unit,
-                'street': street,
-                'street_no': street_no,
-                'city': city,
-                'state': state,
-                'zip': zip_code
-            }
-            response = signup_user(signup_data)
-            if response.status_code == 201:
-                st.success('Signup successful')
-            else:
-                st.error('Signup failed. Error: ' + response.json().get('error', ''))
+            if signup_button:
+                if not email or not mobile or not fname:
+                    st.error('Email, mobile, and first name are compulsory')
+                else:
+                    signup_data = {
+                        'email': email,
+                        'password': password,
+                        'mobile': mobile,
+                        'fname': fname,
+                        'lname': lname,
+                        'gen': gen,
+                        'dob': dob.isoformat(),  # converting date to string
+                        'unit': unit,
+                        'street': street,
+                        'street_no': street_no,
+                        'city': city,
+                        'state': state,
+                        'zip': zip_code
+                    }
+                    response = signup_user(signup_data)
+                    if response.status_code == 201:
+                        st.success('Signup successful')
+                    else:
+                        st.error('Signup failed. Error: ' + response.json().get('error', ''))
 
 
 def login_page():
@@ -59,7 +63,8 @@ def login_page():
             response = login_user(login_data)
             if response.status_code == 200:
                 st.session_state['user_email'] = login_email
-                st.experimental_rerun()  # This reruns the script to switch to the trips display
+                st.session_state['f_name'] = response.json()[2]
+                st.rerun()  # This reruns the script to switch to the trips display
             else:
                 st.error('Login failed. Incorrect email or password.')
 
@@ -88,7 +93,11 @@ def main():
                            orientation="horizontal")
 
     if selected == "Home":
-        st.subheader("Welcome to the Travel Itinerary App!")
+        if 'f_name' in st.session_state:
+            name = st.session_state['f_name']
+        else:
+            name = 'Traveller'
+        st.subheader("Hi " + name + "! Welcome to the Travel Itinerary App!")
     elif selected == "Sign Up":
         signup_page()
     elif selected == "Login":
