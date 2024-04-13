@@ -103,7 +103,7 @@ def login():
         if traveller:
             phone_number = traveller[1]
             if phone_number == password:
-                print("Login successful!")
+                print("Login successful")
                 print("Traveller Details:")
                 return jsonify(traveller), 200
             else:
@@ -119,6 +119,6 @@ def login():
 
 if __name__ == '__main__':
     username = "root"
-    password = "parrvaltd118"
+    password = "anshuman"
     connection = connect_to_database(username, password)
     app.run(debug=True)
