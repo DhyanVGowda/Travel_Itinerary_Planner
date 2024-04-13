@@ -54,6 +54,38 @@ def check_empty(value):
     return value
 
 
+@app.route('/createTrip', methods=['POST'])
+def create_trip_details():
+    data = request.get_json()
+    print(data)
+    email = data.get('email')
+    trip_name = data.get('trip_name')
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    status = data.get('status')
+
+    try:
+        with connection.cursor() as cursor:
+
+            connection.begin()
+
+
+            cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
+
+            cursor.execute("SELECT LAST_INSERT_ID()")
+            trip_id = cursor.fetchone()[0]
+
+            cursor.callproc('AddTravellerTripPlan', [email, trip_id])
+
+            connection.commit()
+
+            return jsonify({'message': 'Trip and traveler\'s trip plan added successfully'}), 201
+    except Error as e:
+        print("Failed to add trip and traveler's trip plan:", e)
+        connection.rollback()
+        return jsonify({'error': 'Failed to add trip and traveler\'s trip plan'}), 500
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -85,7 +117,7 @@ def signup():
             return jsonify({'error': 'Signup failed due to database error'}), 500
     except pymysql.Error as e:
         connection.rollback()
-        return jsonify({'error':str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
 
@@ -307,7 +339,7 @@ def delete_traveller_trip_plan(email, trip_id):
 
 if __name__ == '__main__':
     username = "root"
-    password = "Anvitha@2024"
+    password = "anshuman"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
