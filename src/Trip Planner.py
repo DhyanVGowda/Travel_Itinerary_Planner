@@ -267,8 +267,21 @@ def display_destinations():
         st.error("Please log in to view destinations.")
 
 def display_activities():
+    # st.subheader("User's Activity Data")
+    # if 'user_email' in st.session_state:
+    #     trips_df, error = fetch_trips(st.session_state['user_email'])
+    #     if not trips_df.empty:
+    #         trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+    #         activity_df, error = get_activities(trip_ids)
+    #         if not activity_df.empty:
+    #             st.dataframe(activity_df)
+    #         else:
+    #             st.error(error or "No Activity found.")
+    #     else:
+    #         st.error("No activity found to display.")
+    # else:
+    #     st.error("Please log in to view Activities Data.")
     print(1)
-
 
 def display_accommodations():
     st.subheader("User's Accomodations")
