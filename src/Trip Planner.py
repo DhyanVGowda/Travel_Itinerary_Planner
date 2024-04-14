@@ -1,14 +1,10 @@
-import os
 import time
+from io import BytesIO
 
-import pandas as pd
 import streamlit as st
 from streamlit_option_menu import option_menu
-from datetime import datetime
-from rest_api import *
 
-import base64
-from io import BytesIO
+from rest_api import *
 
 # Constants for Flask server
 FLASK_SERVER_URL = "http://127.0.0.1:5000"
@@ -270,6 +266,11 @@ def display_destinations():
     else:
         st.error("Please log in to view destinations.")
 
+def display_activities():
+    print(1)
+
+def display_accommodations():
+    print(1)
 
 def main():
     st.title('Travel Itinerary App')
@@ -283,8 +284,8 @@ def main():
         show_user_info()
         options.remove("Sign Up")
         options.remove("Login")
-        options += ["Your Trips", "Destinations", "Logout"]  # Now includes 'Destinations'
-        icons += ["map", "globe", "box-arrow-right"]
+        options += ["Your Trips", "Destinations", "Activities", "Accommodations", "Logout"]
+        icons += ["map", "globe", "biking", "hotel", "box-arrow-right"]
 
     selected = option_menu("Main Menu", options, icons=icons, menu_icon="cast", default_index=0,
                            orientation="horizontal")
@@ -301,6 +302,10 @@ def main():
         display_trips()
     elif selected == "Destinations" and 'user_email' in st.session_state:
         display_destinations()
+    elif selected == "Activities" and 'user_email' in st.session_state:
+        display_activities()
+    elif selected == "Accommodations" and 'user_email' in st.session_state:
+        display_accommodations()
     elif selected == "Logout":
         for key in ['user_email', 'user_info']:
             if key in st.session_state:
