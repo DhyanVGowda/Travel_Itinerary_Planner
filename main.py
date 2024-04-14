@@ -111,6 +111,37 @@ def signup():
         cursor.close()
 
 
+@app.route('/createTrip', methods=['POST'])
+def create_trip_details():
+    data = request.get_json()
+    print(data)
+    email = data.get('email')
+    trip_name = data.get('trip_name')
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    status = data.get('status')
+
+    try:
+        with connection.cursor() as cursor:
+
+            connection.begin()
+
+            cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
+
+            cursor.execute("SELECT LAST_INSERT_ID()")
+            trip_id = cursor.fetchone()[0]
+
+            cursor.callproc('AddTravellerTripPlan', [email, trip_id])
+
+            connection.commit()
+
+            return jsonify({'message': 'Trip and traveler\'s trip plan added successfully'}), 201
+    except Error as e:
+        print("Failed to add trip and traveler's trip plan:", e)
+        connection.rollback()
+        return jsonify({'error': 'Failed to add trip and traveler\'s trip plan'}), 500
+
+
 @app.route('/addOtherTravellerToTrip', methods=['POST'])
 def add_other_traveller():
     try:
@@ -166,7 +197,7 @@ def login():
         cursor.close()
 
 
-@app.route('/Traveller/<email>', methods=['DELETE'])
+@app.route('/deleteTraveller/<email>', methods=['DELETE'])
 def delete_traveller(email):
     try:
         cursor = connection.cursor()
@@ -180,7 +211,7 @@ def delete_traveller(email):
         cursor.close()
 
 
-@app.route('/Trip/<int:trip_id>', methods=['DELETE'])
+@app.route('/deleteTrip/<int:trip_id>', methods=['DELETE'])
 def delete_trip(trip_id):
     try:
         cursor = connection.cursor()
@@ -194,7 +225,7 @@ def delete_trip(trip_id):
         cursor.close()
 
 
-@app.route('/Destination/<int:dest_id>', methods=['DELETE'])
+@app.route('/deleteDestination/<int:dest_id>', methods=['DELETE'])
 def delete_destination(dest_id):
     try:
         cursor = connection.cursor()
@@ -208,7 +239,7 @@ def delete_destination(dest_id):
         cursor.close()
 
 
-@app.route('/Activity/<int:activity_id>', methods=['DELETE'])
+@app.route('/deleteActivity/<int:activity_id>', methods=['DELETE'])
 def delete_activity(activity_id):
     try:
         cursor = connection.cursor()
@@ -222,7 +253,7 @@ def delete_activity(activity_id):
         cursor.close()
 
 
-@app.route('/Expense/<int:exp_id>', methods=['DELETE'])
+@app.route('/deleteExpense/<int:exp_id>', methods=['DELETE'])
 def delete_expense(exp_id):
     try:
         cursor = connection.cursor()
@@ -236,7 +267,7 @@ def delete_expense(exp_id):
         cursor.close()
 
 
-@app.route('/Activity_SightSeeing/<int:act_id>', methods=['DELETE'])
+@app.route('/deleteSightSeeingActivity/<int:act_id>', methods=['DELETE'])
 def delete_sightseeing_activity(act_id):
     try:
         cursor = connection.cursor()
@@ -250,7 +281,7 @@ def delete_sightseeing_activity(act_id):
         cursor.close()
 
 
-@app.route('/Activity_AdventureSport/<int:act_id>', methods=['DELETE'])
+@app.route('/deleteAdventureSportActivity/<int:act_id>', methods=['DELETE'])
 def delete_adventure_sport_activity(act_id):
     try:
         cursor = connection.cursor()
@@ -264,7 +295,7 @@ def delete_adventure_sport_activity(act_id):
         cursor.close()
 
 
-@app.route('/Accommodation_HomeStay/<int:accom_id>', methods=['DELETE'])
+@app.route('/deleteHomeStay/<int:accom_id>', methods=['DELETE'])
 def delete_homestay(accom_id):
     try:
         cursor = connection.cursor()
@@ -278,7 +309,7 @@ def delete_homestay(accom_id):
         cursor.close()
 
 
-@app.route('/Accommodation_Hotel/<int:accom_id>', methods=['DELETE'])
+@app.route('/deleteHotel/<int:accom_id>', methods=['DELETE'])
 def delete_hotel(accom_id):
     try:
         cursor = connection.cursor()
@@ -292,7 +323,7 @@ def delete_hotel(accom_id):
         cursor.close()
 
 
-@app.route('/Accommodation_Hostel/<int:accom_id>', methods=['DELETE'])
+@app.route('/deleteHostel/<int:accom_id>', methods=['DELETE'])
 def delete_hostel(accom_id):
     try:
         cursor = connection.cursor()
@@ -306,7 +337,7 @@ def delete_hostel(accom_id):
         cursor.close()
 
 
-@app.route('/EssentialPackingItems/<int:item_id>', methods=['DELETE'])
+@app.route('/deleteEssentialPackingItems/<int:item_id>', methods=['DELETE'])
 def delete_packing_item(item_id):
     try:
         cursor = connection.cursor()
@@ -320,7 +351,7 @@ def delete_packing_item(item_id):
         cursor.close()
 
 
-@app.route('/Trip_Requires_Item/<int:trip_id>/<int:item_id>', methods=['DELETE'])
+@app.route('/deleteTripRequiresItem/<int:trip_id>/<int:item_id>', methods=['DELETE'])
 def delete_trip_required_item(trip_id, item_id):
     try:
         cursor = connection.cursor()
@@ -334,7 +365,7 @@ def delete_trip_required_item(trip_id, item_id):
         cursor.close()
 
 
-@app.route('/Traveller_Plans_Trip/<email>/<int:trip_id>', methods=['DELETE'])
+@app.route('/deleteTravellerPlansTrip/<email>/<int:trip_id>', methods=['DELETE'])
 def delete_traveller_trip_plan(email, trip_id):
     try:
         cursor = connection.cursor()
@@ -348,7 +379,7 @@ def delete_traveller_trip_plan(email, trip_id):
         cursor.close()
 
 
-@app.route('/Expense/<int:exp_id>', methods=['GET'])
+@app.route('/getExpenseById/<int:exp_id>', methods=['GET'])
 def get_expense_by_id(exp_id):
     try:
         cursor = connection.cursor()
@@ -361,7 +392,7 @@ def get_expense_by_id(exp_id):
         cursor.close()
 
 
-@app.route('/Destination/<int:dest_id>', methods=['GET'])
+@app.route('/getDestinationById/<int:dest_id>', methods=['GET'])
 def get_destination_by_id(dest_id):
     try:
         cursor = connection.cursor()
@@ -374,7 +405,7 @@ def get_destination_by_id(dest_id):
         cursor.close()
 
 
-@app.route('/Activity/<int:act_id>', methods=['GET'])
+@app.route('/getActivityById/<int:act_id>', methods=['GET'])
 def get_activity_by_id(act_id):
     try:
         cursor = connection.cursor()
@@ -388,7 +419,7 @@ def get_activity_by_id(act_id):
         cursor.close()
 
 
-@app.route('/Activity_SightSeeing/<int:act_id>', methods=['GET'])
+@app.route('/getSightSeeingActivityById/<int:act_id>', methods=['GET'])
 def get_sightseeing_activity_by_id(act_id):
     try:
         cursor = connection.cursor()
@@ -401,7 +432,7 @@ def get_sightseeing_activity_by_id(act_id):
         cursor.close()
 
 
-@app.route('/Activity_AdventureSport/<int:act_id>', methods=['GET'])
+@app.route('/getAdventureSportActivityById/<int:act_id>', methods=['GET'])
 def get_adventure_sport_activity_by_id(act_id):
     try:
         cursor = connection.cursor()
@@ -414,7 +445,7 @@ def get_adventure_sport_activity_by_id(act_id):
         cursor.close()
 
 
-@app.route('/Accommodation_HomeStay/<int:accom_id>', methods=['GET'])
+@app.route('/getHomeStayAccomodationById/<int:accom_id>', methods=['GET'])
 def get_homestay_accommodation_by_id(accom_id):
     try:
         cursor = connection.cursor()
@@ -427,7 +458,7 @@ def get_homestay_accommodation_by_id(accom_id):
         cursor.close()
 
 
-@app.route('/Accommodation_Hotel/<int:accom_id>', methods=['GET'])
+@app.route('/getAccommodationHotelById/<int:accom_id>', methods=['GET'])
 def get_hotel_accommodation_by_id(accom_id):
     try:
         cursor = connection.cursor()
@@ -440,7 +471,7 @@ def get_hotel_accommodation_by_id(accom_id):
         cursor.close()
 
 
-@app.route('/Accommodation_Hostel/<int:accom_id>', methods=['GET'])
+@app.route('/getAccommodationHostelById/<int:accom_id>', methods=['GET'])
 def get_hostel_accommodation_by_id(accom_id):
     try:
         cursor = connection.cursor()
@@ -453,7 +484,7 @@ def get_hostel_accommodation_by_id(accom_id):
         cursor.close()
 
 
-@app.route('/EssentialPackingItems/<int:item_id>', methods=['GET'])
+@app.route('/getEssentialPackingItemsById/<int:item_id>', methods=['GET'])
 def get_essential_packing_item_by_id(item_id):
     try:
         cursor = connection.cursor()
@@ -466,7 +497,7 @@ def get_essential_packing_item_by_id(item_id):
         cursor.close()
 
 
-@app.route('/Traveller_Plans_Trip/<email>/<int:trip_id>', methods=['GET'])
+@app.route('/getTravellerPlansTripById/<email>/<int:trip_id>', methods=['GET'])
 def get_traveller_trip_plan(email, trip_id):
     try:
         cursor = connection.cursor()
@@ -479,7 +510,7 @@ def get_traveller_trip_plan(email, trip_id):
         cursor.close()
 
 
-@app.route('/Trip_Requires_Item/<int:trip_id>/<int:item_id>', methods=['GET'])
+@app.route('/getTripRequiresItem/<int:trip_id>/<int:item_id>', methods=['GET'])
 def get_trip_required_item(trip_id, item_id):
     try:
         cursor = connection.cursor()
@@ -492,7 +523,7 @@ def get_trip_required_item(trip_id, item_id):
         cursor.close()
 
 
-@app.route('/Trip_Has_Destination/<int:dest_id>/<int:trip_id>', methods=['GET'])
+@app.route('/getTripHasDestination/<int:dest_id>/<int:trip_id>', methods=['GET'])
 def get_trip_destination(dest_id, trip_id):
     try:
         cursor = connection.cursor()
@@ -507,9 +538,176 @@ def get_trip_destination(dest_id, trip_id):
         cursor.close()
 
 
+@app.route('/addDestination', methods=['POST'])
+def add_destination():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddDestination', [
+            data['destination_name'],
+            data['country'],
+            data['arrival_date'],
+            data['departure_date']
+        ])
+        connection.commit()
+        return jsonify({'message': 'Destination added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/addAccommodationHotel', methods=['POST'])
+def add_hotel():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddHotelAccommodation', [
+            data['name'],
+            data['cost_per_night'],
+            data['telephone_number'],
+            data['checkin_date'],
+            data['checkout_date'],
+            data['street_name'],
+            data['street_number'],
+            data['city'],
+            data['state'],
+            data['zipcode'],
+            data['destination_id'],
+            data['number_of_rooms'],
+            data['complimentary_meal'],
+            data['star_rating']
+        ])
+        connection.commit()
+        return jsonify({'message': 'Hotel added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/addAccommodationHomeStay', methods=['POST'])
+def add_homestay():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddHomeStayAccommodation', [
+            data['accommodation_name'],
+            data['cost_per_night'],
+            data['telephone_number'],
+            data['checkin_date'],
+            data['checkout_date'],
+            data['street_name'],
+            data['street_number'],
+            data['city'],
+            data['state'],
+            data['zipcode'],
+            data['destination_id'],
+            data['number_of_rooms'],
+            data.get('is_cook_available', False),
+            data['stay_type'],
+            data.get('is_pet_allowed', False)
+        ])
+        connection.commit()
+        return jsonify({'message': 'Homestay added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/addAccommodationHostel', methods=['POST'])
+def add_hostel():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddHostelAccommodation', [
+            data['accommodation_name'],
+            data['cost_per_night'],
+            data['telephone_number'],
+            data['checkin_date'],
+            data['checkout_date'],
+            data['street_name'],
+            data['street_number'],
+            data['city'],
+            data['state'],
+            data['zipcode'],
+            data['destination_id'],
+            data.get('meal_service', False),
+            data['bathroom_type'],
+            data.get('free_wifi', False),
+            data.get('mixed_gender_dorm', False)
+        ])
+        connection.commit()
+        return jsonify({'message': 'Hostel added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/activity', methods=['POST'])
+def add_activity():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddActivity', [
+            data['activity_location'],
+            data['activity_description'],
+            data['activity_date'],
+            data['start_time'],
+            data['end_time'],
+            data['cost'],
+            data['destination_id']
+        ])
+        connection.commit()
+        return jsonify({'message': 'Activity added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/addActivitySightSeeing', methods=['POST'])
+def add_sightseeing():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddSightseeingActivity', [
+            data['activity_id'],
+            data['site_type'],
+            data['site_description']
+        ])
+        connection.commit()
+        return jsonify({'message': 'Sightseeing activity added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/addActivityAdventureSport', methods=['POST'])
+def add_adventure_sport():
+    data = request.get_json()
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddAdventureSportActivity', [
+            data['activity_id'],
+            data['sport_type'],
+            data['minimum_age'],
+            data['other_restrictions']
+        ])
+        connection.commit()
+        return jsonify({'message': 'Adventure sport activity added successfully'}), 201
+    except pymysql.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 if __name__ == '__main__':
     username = "root"
-    password = "parrvaltd118"
+    password = "Anvitha@2024"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
