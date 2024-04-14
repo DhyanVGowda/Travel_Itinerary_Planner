@@ -258,9 +258,9 @@ def get_accommodation_hostel():
                f"WHERE thd.trip_id IN ({', '.join(map(str, trips))}) ORDER BY thd.trip_id, thd.destination_id;")
         cursor.execute(sql)
         result = cursor.fetchall()
-        accommodation_hostel= [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        accommodation_hostel = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
         accommodation_hostel_json = json.dumps({'accommodation_hostels': accommodation_hostel},
-                                                  cls=CustomEncoder)
+                                               cls=CustomEncoder)
         return accommodation_hostel_json, 200
     except Error as e:
         return jsonify({'error': str(e)}), 500
@@ -281,10 +281,39 @@ def get_accommodation_hotel():
                f"WHERE thd.trip_id IN ({', '.join(map(str, trips))}) ORDER BY thd.trip_id, thd.destination_id;")
         cursor.execute(sql)
         result = cursor.fetchall()
-        accommodation_hotel= [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        accommodation_hotel = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
         accommodation_hotel_json = json.dumps({'accommodation_hotels': accommodation_hotel},
-                                                  cls=CustomEncoder)
+                                              cls=CustomEncoder)
         return accommodation_hotel_json, 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/getActivityByTripIds', methods=['POST'])
+def get_activity():
+    data = request.get_json()
+    try:
+        trips = data.get('trip_ids')
+        cursor = connection.cursor()
+        sql = ("SELECT td.trip_id, t.trip_name, d.destination_name, "
+               "a.activity_id, a.activity_location, a.activity_description, "
+               "a.activity_date, a.start_time, a.end_time, a.cost, "
+               "ss.site_type, ss.site_description, "
+               "asp.sport_type, asp.minimum_age, asp.other_restrictions "
+               "FROM Activity a "
+               "LEFT JOIN Activity_SightSeeing ss ON a.activity_id = ss.activity_id "
+               "LEFT JOIN Activity_AdventureSport asp ON a.activity_id = asp.activity_id "
+               "INNER JOIN Trip_Has_Destination td ON a.destination_id = td.destination_id "
+               "INNER JOIN Trip t ON td.trip_id = t.trip_id "
+               "INNER JOIN Destination d ON td.destination_id = d.destination_id "
+               f"WHERE td.trip_id IN ({', '.join(map(str, trips))})")
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        activities = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        activities_json = json.dumps({'activities': activities}, cls=CustomEncoder)
+        return activities_json, 200
     except Error as e:
         return jsonify({'error': str(e)}), 500
     finally:
