@@ -36,5 +36,5 @@ def add_trip(trip_data):
 
 def delete_trip(trip_id):
     # Make a DELETE request to the delete trip API endpoint
-    response = requests.delete(f"{FLASK_SERVER_URL}/deleteTrip/{trip_id}")
+    response = requests.delete(f"{FLASK_SERVER_URL}/Trip/{trip_id}")
     return response
