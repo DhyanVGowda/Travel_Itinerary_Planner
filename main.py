@@ -1,6 +1,23 @@
-from flask import Flask, request, jsonify
+from decimal import Decimal
+from flask import Flask, Response, jsonify
+import json
+import datetime
 import pymysql
-from pymysql import Error
+from pymysql.err import Error
+
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.date):
+            return obj.strftime('%Y-%m-%d')
+        elif isinstance(obj, datetime.time):
+            return obj.strftime('%H:%M:%S')
+        elif isinstance(obj, datetime.timedelta):
+            return obj.total_seconds()
+        elif isinstance(obj, Decimal):
+            return str(obj)
+        return super().default(obj)
+
 
 app = Flask(__name__)
 
@@ -54,38 +71,6 @@ def check_empty(value):
     return value
 
 
-@app.route('/createTrip', methods=['POST'])
-def create_trip_details():
-    data = request.get_json()
-    print(data)
-    email = data.get('email')
-    trip_name = data.get('trip_name')
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    status = data.get('status')
-
-    try:
-        with connection.cursor() as cursor:
-
-            connection.begin()
-
-
-            cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
-
-            cursor.execute("SELECT LAST_INSERT_ID()")
-            trip_id = cursor.fetchone()[0]
-
-            cursor.callproc('AddTravellerTripPlan', [email, trip_id])
-
-            connection.commit()
-
-            return jsonify({'message': 'Trip and traveler\'s trip plan added successfully'}), 201
-    except Error as e:
-        print("Failed to add trip and traveler's trip plan:", e)
-        connection.rollback()
-        return jsonify({'error': 'Failed to add trip and traveler\'s trip plan'}), 500
-
-
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -117,7 +102,7 @@ def signup():
             return jsonify({'error': 'Signup failed due to database error'}), 500
     except pymysql.Error as e:
         connection.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error':str(e)}), 500
     finally:
         cursor.close()
 
@@ -337,9 +322,168 @@ def delete_traveller_trip_plan(email, trip_id):
         cursor.close()
 
 
+@app.route('/Expense/<int:exp_id>', methods=['GET'])
+def get_expense_by_id(exp_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetExpenseById', [exp_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Destination/<int:dest_id>', methods=['GET'])
+def get_destination_by_id(dest_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetDestinationById', [dest_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Activity/<int:act_id>', methods=['GET'])
+def get_activity_by_id(act_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetActivityById', [act_id])
+        results = cursor.fetchall()
+        response_json = json.dumps(results, cls=CustomEncoder)
+        return Response(response_json), 200
+    except Error as e:
+        return Response(json.dumps({'error': str(e)})), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Activity_SightSeeing/<int:act_id>', methods=['GET'])
+def get_sightseeing_activity_by_id(act_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetSightSeeingActivityById', [act_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Activity_AdventureSport/<int:act_id>', methods=['GET'])
+def get_adventure_sport_activity_by_id(act_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetAdventureSportActivityById', [act_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Accommodation_HomeStay/<int:accom_id>', methods=['GET'])
+def get_homestay_accommodation_by_id(accom_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetHomeStayAccommodationById', [accom_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Accommodation_Hotel/<int:accom_id>', methods=['GET'])
+def get_hotel_accommodation_by_id(accom_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetHotelAccommodationById', [accom_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Accommodation_Hostel/<int:accom_id>', methods=['GET'])
+def get_hostel_accommodation_by_id(accom_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetHostelAccommodationById', [accom_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/EssentialPackingItems/<int:item_id>', methods=['GET'])
+def get_essential_packing_item_by_id(item_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetEssentialPackingItemById', [item_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Traveller_Plans_Trip/<email>/<int:trip_id>', methods=['GET'])
+def get_traveller_trip_plan(email, trip_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetTravellerTripPlan', [email, trip_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Trip_Requires_Item/<int:trip_id>/<int:item_id>', methods=['GET'])
+def get_trip_required_item(trip_id, item_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetTripRequiredItem', [trip_id, item_id])
+        results = cursor.fetchall()
+        return jsonify(results), 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/Trip_Has_Destination/<int:dest_id>/<int:trip_id>', methods=['GET'])
+def get_trip_destination(dest_id, trip_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('GetTripDestination', [dest_id, trip_id])
+        results = cursor.fetchall()
+        response_json = json.dumps(results, cls=CustomEncoder)
+        return Response(response_json), 200
+    except Error as e:
+        error_message = json.dumps({'error': str(e)}, cls=CustomEncoder)
+        return Response(error_message), 500
+    finally:
+        cursor.close()
+
+
 if __name__ == '__main__':
     username = "root"
-    password = "anshuman"
+    password = "Anvitha@2024"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
