@@ -268,6 +268,29 @@ def get_accommodation_hostel():
         cursor.close()
 
 
+@app.route('/getAccomodationHotelByTripIds', methods=['POST'])
+def get_accommodation_hotel():
+    data = request.get_json()
+    try:
+        trips = data.get('trip_ids')
+        cursor = connection.cursor()
+        sql = ("SELECT thd.trip_id, ah.* "
+               "FROM Accommodation_Hotel ah "
+               "INNER JOIN Trip_Has_Destination thd "
+               "ON thd.destination_id = ah.destination_id "
+               f"WHERE thd.trip_id IN ({', '.join(map(str, trips))}) ORDER BY thd.trip_id, thd.destination_id;")
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        accommodation_hotel= [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        accommodation_hotel_json = json.dumps({'accommodation_hostels': accommodation_hotel},
+                                                  cls=CustomEncoder)
+        return accommodation_hotel_json, 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 if __name__ == '__main__':
     username = "root"
     password = "parrvaltd118"
