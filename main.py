@@ -4,7 +4,6 @@ import json
 import datetime
 import pymysql
 from pymysql.err import Error
-from flask_cors import CORS
 
 
 # After creating the Flask app
@@ -126,9 +125,9 @@ def add_other_traveller():
         if 'Duplicate entry' in str(e):
             return jsonify({'error': 'Traveller Already a Part of the Trip'}), 500
         elif 'foreign key constraint' in str(e):
-            return jsonify({'error': 'Cannot Find traveller'}), 500
+            return jsonify({'error': 'Cannot Find traveller'}), 501
         else:
-            return jsonify({'error': str(e)}), 500
+            return jsonify({'error': str(e)}), 502
     finally:
         cursor.close()
 
@@ -509,11 +508,10 @@ def get_trip_destination(dest_id, trip_id):
 
 if __name__ == '__main__':
     username = "root"
-    password = "parrvaltd118"
+    password = "anshuman"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
-        CORS(app)
     else:
         print("Cant connect to db")
         exit(-1)

@@ -115,39 +115,57 @@ def display_trips():
     if 'user_email' in st.session_state:
         trips_df, error = fetch_trips(st.session_state['user_email'])
         if not trips_df.empty:
-            trips_df_1 = trips_df.iloc[:, -4:]
 
-            trips_df_1.columns = ['Trip Name', 'Start Date', 'End Date', 'Status']
+            trips_df.columns = ['Trip Id', 'Trip Name', 'Start Date', 'End Date', 'Status']
 
-            trips_df_1['Start Date'] = pd.to_datetime(trips_df_1['Start Date']).dt.strftime('%Y-%b-%d')
-            trips_df_1['End Date'] = pd.to_datetime(trips_df_1['End Date']).dt.strftime('%Y-%b-%d')
+            trips_df['Start Date'] = pd.to_datetime(trips_df['Start Date']).dt.strftime('%Y-%b-%d')
+            trips_df['End Date'] = pd.to_datetime(trips_df['End Date']).dt.strftime('%Y-%b-%d')
 
-            st.table(trips_df_1)
+            st.dataframe(trips_df, hide_index=True)
 
-            export_format = st.radio("Export Format", ("CSV", "Excel"))
-            if export_format == "CSV":
-                st.download_button("Download CSV", trips_df.to_csv(), "trips.csv", "text/csv")
-            elif export_format == "Excel":
-                st.download_button("Download Excel", trips_df.to_excel(), "trips.xlsx",
-                                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            with st.expander("Add Travellers"):
 
-            # Add functionality to delete a trip
-            delete_trip_index = st.selectbox('Select a trip to delete (by index)', trips_df.index)
-            if st.button('Delete Trip'):
-                trip_id_to_delete = trips_df.loc[delete_trip_index, 'Trip ID']  # Replace with actual ID column name
-                response = delete_trip(trip_id_to_delete)
-                if response.status_code == 200:
-                    st.success(f"Trip {trip_id_to_delete} deleted successfully.")
-                    st.experimental_rerun()
-                else:
-                    st.error('Failed to delete the trip.')
+                with st.form("add_traveller_form", clear_on_submit=True):
+                    st.subheader('Add Traveller to Trip')
+                    trip_options = list(trips_df['Trip Id'])
+                    selected_trip_id = st.selectbox('Select Trip ID', trip_options)
+                    traveller_email = st.text_input('New Traveller Email')
+                    submit_add_traveller = st.form_submit_button('Add Traveller')
+
+                    if submit_add_traveller:
+                        if not traveller_email:
+                            st.error('Traveller email is required.')
+                        else:
+                            payload = {
+                                "trip_id": selected_trip_id,
+                                "email": traveller_email
+                            }
+                            response = add_traveller_to_trip(payload)
+                            if response.status_code == 201:
+                                st.success('Traveller added successfully to the trip.')
+                                time.sleep(1)
+                                st.experimental_rerun()
+                            else:
+                                st.error(f'Failed to add traveller to the trip. Error: {response.json()["error"]}')
+
+            with st.expander("Delete Trip"):
+                trip_options = list(trips_df['Trip Id'])
+                selected_trip_id = st.selectbox('Select Trip ID', trip_options)
+                if st.button('Delete Trip'):
+                    response = delete_trip(selected_trip_id)
+                    if response.status_code == 200:
+                        st.success(f"Trip deleted successfully.")
+                        time.sleep(1)
+                        st.experimental_rerun()
+                    else:
+                        st.error('Failed to delete the trip.')
 
         else:
             st.error(error or "No trips found.")
 
     # Interface to add a new trip
     st.subheader('Add New Trip')
-    with st.form("add_trip_form"):
+    with st.form("add_trip_form", clear_on_submit=True):
         new_trip_name = st.text_input('Trip Name')
         new_start_date = st.date_input('Start Date', None)
         new_end_date = st.date_input('End Date', None)
@@ -173,8 +191,6 @@ def display_trips():
 
                 else:
                     st.error('Failed to add new trip.')
-
-
 
 def login_page():
     with st.form("login_form"):
@@ -214,17 +230,16 @@ def show_user_info():
             st.sidebar.header('**Traveler Information**')
             st.sidebar.markdown(f"**Name:** {user_info[2]} {user_info[3]}")  # Name in bold
             st.sidebar.markdown(f"**Email:** {user_info[0]}")  # Index for email
-            st.sidebar.write(f"**Mobile:** {user_info[1]}")              # Index for mobile
+            st.sidebar.write(f"**Mobile:** {user_info[1]}")  # Index for mobile
             st.sidebar.write(f"**Address:** {user_info[7]} {user_info[8]}")  # Index for unit and street
-            st.sidebar.write(f"**City:** {user_info[9]}")                 # Index for city
-            st.sidebar.write(f"**State:** {user_info[10]}")                # Index for state
+            st.sidebar.write(f"**City:** {user_info[9]}")  # Index for city
+            st.sidebar.write(f"**State:** {user_info[10]}")  # Index for state
         else:
             # If there is no user info or an empty response, display an error message
             st.sidebar.error("Failed to load traveler information.")
     else:
         # If there is no email in the session state, prompt the user to log in
         st.sidebar.write("Please log in to see traveler information.")
-
 
 
 def main():
