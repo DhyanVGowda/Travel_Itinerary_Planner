@@ -2,7 +2,7 @@ import time
 
 import streamlit as st
 from streamlit_option_menu import option_menu
-
+from datetime import datetime
 from rest_api import *
 
 import base64
@@ -175,12 +175,68 @@ def display_trips():
                     st.error('Failed to add new trip.')
 
 
+
+def login_page():
+    with st.form("login_form"):
+        st.subheader('Login')
+        login_email = st.text_input('Email', key='login_email')
+        login_password = st.text_input('Password', type='password', key='login_password')
+        login_button = st.form_submit_button('Login')
+
+        if login_button:
+            login_data = {
+                'email': login_email,
+                'password': login_password
+            }
+            response = login_user(login_data)
+            if response.status_code == 200:
+                user_info = response.json()  # Assuming the response contains user info
+                st.session_state['user_email'] = login_email
+                st.session_state['user_info'] = user_info  # Store user info in session state
+                st.session_state['traveller_details'] = user_info
+                st.experimental_rerun()
+            else:
+                st.error('Login failed. Incorrect email or password.')
+
+
+def show_user_info():
+    # Get the logged-in user's email from the session state
+    email = st.session_state.get('user_email', '')
+
+    # If there is an email in the session state, attempt to fetch user info
+    if email:
+        # Fetch the user information, which should be a list
+        user_info = st.session_state.get('traveller_details', [])
+
+        # Check if the response is not empty
+        if user_info:
+            # Assuming the order of user_info list is consistent with the API response
+            st.sidebar.header('**Traveler Information**')
+            st.sidebar.markdown(f"**Name:** {user_info[2]} {user_info[3]}")  # Name in bold
+            st.sidebar.markdown(f"**Email:** {user_info[0]}")  # Index for email
+            st.sidebar.write(f"**Mobile:** {user_info[1]}")              # Index for mobile
+            st.sidebar.write(f"**Address:** {user_info[7]} {user_info[8]}")  # Index for unit and street
+            st.sidebar.write(f"**City:** {user_info[9]}")                 # Index for city
+            st.sidebar.write(f"**State:** {user_info[10]}")                # Index for state
+        else:
+            # If there is no user info or an empty response, display an error message
+            st.sidebar.error("Failed to load traveler information.")
+    else:
+        # If there is no email in the session state, prompt the user to log in
+        st.sidebar.write("Please log in to see traveler information.")
+
+
+
 def main():
     st.title('Travel Itinerary App')
+
+    # Sidebar menu
     options = ["Home", "Sign Up", "Login"]
     icons = ["house", "person-plus", "door-open"]
 
+    # If user is logged in, show their info in the sidebar
     if 'user_email' in st.session_state:
+        show_user_info()
         options += ["Your Trips", "Logout"]
         options.remove("Sign Up")
         options.remove("Login")
@@ -190,11 +246,9 @@ def main():
                            orientation="horizontal")
 
     if selected == "Home":
-        if 'f_name' in st.session_state:
-            name = st.session_state['f_name']
-        else:
-            name = 'Traveller'
-        st.subheader("Hi " + name + "! Welcome to the Travel Itinerary App!")
+        st.subheader("Welcome to the Travel Itinerary App!")
+        if 'user_email' in st.session_state:
+            st.write("Logged in as:", st.session_state['user_email'])
     elif selected == "Sign Up":
         signup_page()
     elif selected == "Login":
@@ -202,9 +256,10 @@ def main():
     elif selected == "Your Trips" and 'user_email' in st.session_state:
         display_trips()
     elif selected == "Logout":
-        if 'user_email' in st.session_state:
-            del st.session_state['user_email']
-        st.rerun()  # Re-run to update the UI and navigation options
+        for key in ['user_email', 'user_info']:
+            if key in st.session_state:
+                del st.session_state[key]
+        st.experimental_rerun()
 
 
 if __name__ == "__main__":
