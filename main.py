@@ -74,13 +74,37 @@ def get_trips(email):
 
 
 @app.route('/getDestinationsByTripIds', methods=['POST'])
+def get_destinations():
+    data = request.get_json()
+    try:
+        trips = data.get('trip_ids')
+        cursor = connection.cursor()
+        sql = ("SELECT thd.trip_id, d.* "
+               "FROM Destination d "
+               "INNER JOIN Trip_Has_Destination thd "
+               "ON thd.destination_id = d.destination_id "
+               f"WHERE thd.trip_id IN ({', '.join(map(str, trips))}) ORDER BY trip_id;")
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        destinations = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        destinations_json = json.dumps({'destinations': destinations}, cls=CustomEncoder)
+        return destinations_json, 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/getDestinationsByTripIds', methods=['POST'])
 def getDestinations():
     print(request.json)
+
 
 def check_empty(value):
     if value == '':
         return None
     return value
+
 
 @app.route('/createTrip', methods=['POST'])
 def create_trip_details():
@@ -96,7 +120,6 @@ def create_trip_details():
         with connection.cursor() as cursor:
 
             connection.begin()
-
 
             cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
 
@@ -148,37 +171,6 @@ def signup():
         return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
-
-
-@app.route('/createTrip', methods=['POST'])
-def create_trip_details():
-    data = request.get_json()
-    print(data)
-    email = data.get('email')
-    trip_name = data.get('trip_name')
-    start_date = data.get('start_date')
-    end_date = data.get('end_date')
-    status = data.get('status')
-
-    try:
-        with connection.cursor() as cursor:
-
-            connection.begin()
-
-            cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
-
-            cursor.execute("SELECT LAST_INSERT_ID()")
-            trip_id = cursor.fetchone()[0]
-
-            cursor.callproc('AddTravellerTripPlan', [email, trip_id])
-
-            connection.commit()
-
-            return jsonify({'message': 'Trip and traveler\'s trip plan added successfully'}), 201
-    except Error as e:
-        print("Failed to add trip and traveler's trip plan:", e)
-        connection.rollback()
-        return jsonify({'error': 'Failed to add trip and traveler\'s trip plan'}), 500
 
 
 @app.route('/addOtherTravellerToTrip', methods=['POST'])
@@ -746,7 +738,7 @@ def add_adventure_sport():
 
 if __name__ == '__main__':
     username = "root"
-    password = "Anvitha@2024"
+    password = "parrvaltd118"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
