@@ -58,20 +58,60 @@ def get_trips(email):
     try:
         cursor = connection.cursor()
         cursor.callproc('GetTripsByTravellerEmail', [email])
-        trips = cursor.fetchall()
+        trips_raw = cursor.fetchall()
+        # Assuming you know the column names or using cursor.description to get them
+        columns = [col[0] for col in cursor.description]
+        trips = [dict(zip(columns, trip)) for trip in trips_raw]
     except Error as e:
         print("Failed to retrieve trips: ", e)
         return jsonify({'error': 'Failed to retrieve trips'}), 500
     finally:
         cursor.close()
     if trips:
-        return jsonify(trips), 200
+        return jsonify({"trips": trips}), 200
+    else:
+        return jsonify({"trips": []}), 200
 
+
+@app.route('/getDestinationsByTripIds', methods=['POST'])
+def getDestinations():
+    print(request.json)
 
 def check_empty(value):
     if value == '':
         return None
     return value
+
+@app.route('/createTrip', methods=['POST'])
+def create_trip_details():
+    data = request.get_json()
+    print(data)
+    email = data.get('email')
+    trip_name = data.get('trip_name')
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    status = data.get('status')
+
+    try:
+        with connection.cursor() as cursor:
+
+            connection.begin()
+
+
+            cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
+
+            cursor.execute("SELECT LAST_INSERT_ID()")
+            trip_id = cursor.fetchone()[0]
+
+            cursor.callproc('AddTravellerTripPlan', [email, trip_id])
+
+            connection.commit()
+
+            return jsonify({'message': 'Trip and traveler\'s trip plan added successfully'}), 201
+    except Error as e:
+        print("Failed to add trip and traveler's trip plan:", e)
+        connection.rollback()
+        return jsonify({'error': 'Failed to add trip and traveler\'s trip plan'}), 500
 
 
 @app.route('/signup', methods=['POST'])
