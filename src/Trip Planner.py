@@ -1,5 +1,7 @@
+import os
 import time
 
+import pandas as pd
 import streamlit as st
 from streamlit_option_menu import option_menu
 from datetime import datetime
@@ -25,7 +27,20 @@ def login_user(login_data):
 def fetch_trips(email):
     response = requests.get(f"{FLASK_SERVER_URL}/trips/{email}")
     if response.status_code == 200:
-        return pd.DataFrame(response.json()), None  # Ensure to return None for error if successful
+        # The JSON response is expected to be a dictionary with 'trips' as a key,
+        # where 'trips' is a list of dictionaries representing each trip.
+        trips_data = response.json().get("trips", [])  # Default to an empty list if "trips" key is absent
+        trips_df = pd.DataFrame(trips_data)
+        trips_df['start_date'] = pd.to_datetime(trips_df['start_date'])
+        trips_df['end_date'] = pd.to_datetime(trips_df['end_date'])
+
+        trips_df_1 = pd.DataFrame()
+        trips_df_1['Trip Id'] = trips_df['trip_id']
+        trips_df_1['Trip Name'] = trips_df['trip_name']
+        trips_df_1['Trip Status'] = trips_df['trip_status']
+        trips_df_1['Start Date'] = trips_df['start_date'].dt.strftime('%Y-%b-%d')
+        trips_df_1['End Date'] = trips_df['end_date'].dt.strftime('%Y-%b-%d')
+        return trips_df_1, None  # Convert the list of dictionaries to a DataFrame
     else:
         return pd.DataFrame(), "Failed to fetch trips."  # Return an empty DataFrame and an error message
 
@@ -116,11 +131,6 @@ def display_trips():
         trips_df, error = fetch_trips(st.session_state['user_email'])
         if not trips_df.empty:
 
-            trips_df.columns = ['Trip Id', 'Trip Name', 'Start Date', 'End Date', 'Status']
-
-            trips_df['Start Date'] = pd.to_datetime(trips_df['Start Date']).dt.strftime('%Y-%b-%d')
-            trips_df['End Date'] = pd.to_datetime(trips_df['End Date']).dt.strftime('%Y-%b-%d')
-
             st.dataframe(trips_df, hide_index=True)
 
             with st.expander("Add Travellers"):
@@ -192,6 +202,7 @@ def display_trips():
                 else:
                     st.error('Failed to add new trip.')
 
+
 def login_page():
     with st.form("login_form"):
         st.subheader('Login')
@@ -242,6 +253,24 @@ def show_user_info():
         st.sidebar.write("Please log in to see traveler information.")
 
 
+def display_destinations():
+    st.subheader("Destinations")
+
+    if 'user_email' in st.session_state:
+        trips_df, error = fetch_trips(st.session_state['user_email'])
+        if not trips_df.empty:
+            trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+            destinations_df, error = get_destinations(trip_ids)
+            if not destinations_df.empty:
+                st.dataframe(destinations_df)
+            else:
+                st.error(error or "No destinations found.")
+        else:
+            st.error("No trips found to display destinations.")
+    else:
+        st.error("Please log in to view destinations.")
+
+
 def main():
     st.title('Travel Itinerary App')
 
@@ -252,10 +281,10 @@ def main():
     # If user is logged in, show their info in the sidebar
     if 'user_email' in st.session_state:
         show_user_info()
-        options += ["Your Trips", "Logout"]
         options.remove("Sign Up")
         options.remove("Login")
-        icons += ["map", "box-arrow-right"]
+        options += ["Your Trips", "Destinations", "Logout"]  # Now includes 'Destinations'
+        icons += ["map", "globe", "box-arrow-right"]
 
     selected = option_menu("Main Menu", options, icons=icons, menu_icon="cast", default_index=0,
                            orientation="horizontal")
@@ -270,6 +299,8 @@ def main():
         login_page()
     elif selected == "Your Trips" and 'user_email' in st.session_state:
         display_trips()
+    elif selected == "Destinations" and 'user_email' in st.session_state:
+        display_destinations()
     elif selected == "Logout":
         for key in ['user_email', 'user_info']:
             if key in st.session_state:
