@@ -1,10 +1,9 @@
 from decimal import Decimal
-from flask import Flask, Response, jsonify
+from flask import Flask, Response, jsonify, request
 import json
 import datetime
 import pymysql
 from pymysql.err import Error
-
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -483,7 +482,7 @@ def get_trip_destination(dest_id, trip_id):
 
 if __name__ == '__main__':
     username = "root"
-    password = "Anvitha@2024"
+    password = "anshuman"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
