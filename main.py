@@ -4,6 +4,11 @@ import json
 import datetime
 import pymysql
 from pymysql.err import Error
+from flask_cors import CORS
+
+
+# After creating the Flask app
+
 
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -101,7 +106,29 @@ def signup():
             return jsonify({'error': 'Signup failed due to database error'}), 500
     except pymysql.Error as e:
         connection.rollback()
-        return jsonify({'error':str(e)}), 500
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/addOtherTravellerToTrip', methods=['POST'])
+def add_other_traveller():
+    try:
+        data = request.json
+        email = data.get('email')
+        trip_id = data.get('trip_id')
+        cursor = connection.cursor()
+        sql = "INSERT INTO traveller_plans_trip (email_id, trip_id) VALUES (%s, %s)"
+        cursor.execute(sql, (email, trip_id))
+        connection.commit()
+        return jsonify({'message': 'Traveller Added Successfully'}), 201
+    except Error as e:
+        if 'Duplicate entry' in str(e):
+            return jsonify({'error': 'Traveller Already a Part of the Trip'}), 500
+        elif 'foreign key constraint' in str(e):
+            return jsonify({'error': 'Cannot Find traveller'}), 500
+        else:
+            return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
 
@@ -482,10 +509,11 @@ def get_trip_destination(dest_id, trip_id):
 
 if __name__ == '__main__':
     username = "root"
-    password = "anshuman"
+    password = "parrvaltd118"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
+        CORS(app)
     else:
         print("Cant connect to db")
         exit(-1)
