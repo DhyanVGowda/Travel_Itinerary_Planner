@@ -54,3 +54,11 @@ def get_accomodation_homestays(trip_ids):
         return pd.DataFrame(response.json().get('accommodation_homestays')), None
     else:
         return pd.DataFrame(), "Failed to fetch destinations."
+
+
+def get_accomodation_hostels(trip_ids):
+    response = requests.post(f"{FLASK_SERVER_URL}/getAccomodationHostelByTripIds", json={'trip_ids': trip_ids})
+    if response.status_code == 200:
+        return pd.DataFrame(response.json().get('accommodation_hostels')), None
+    else:
+        return pd.DataFrame(), "Failed to fetch destinations."
