@@ -282,7 +282,7 @@ def get_accommodation_hotel():
         cursor.execute(sql)
         result = cursor.fetchall()
         accommodation_hotel= [dict(zip([column[0] for column in cursor.description], row)) for row in result]
-        accommodation_hotel_json = json.dumps({'accommodation_hostels': accommodation_hotel},
+        accommodation_hotel_json = json.dumps({'accommodation_hotels': accommodation_hotel},
                                                   cls=CustomEncoder)
         return accommodation_hotel_json, 200
     except Error as e:
