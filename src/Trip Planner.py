@@ -27,8 +27,8 @@ def fetch_trips(email):
         # where 'trips' is a list of dictionaries representing each trip.
         trips_data = response.json().get("trips", [])  # Default to an empty list if "trips" key is absent
         trips_df = pd.DataFrame(trips_data)
-        trips_df['start_date'] = pd.to_datetime(trips_df['start_date'])
-        trips_df['end_date'] = pd.to_datetime(trips_df['end_date'])
+        trips_df['start_date'] = pd.to_datetime(trips_df['start_date'], format='mixed')
+        trips_df['end_date'] = pd.to_datetime(trips_df['end_date'], format='mixed')
 
         trips_df_1 = pd.DataFrame()
         trips_df_1['Trip Id'] = trips_df['trip_id']
@@ -269,8 +269,57 @@ def display_destinations():
 def display_activities():
     print(1)
 
+
 def display_accommodations():
-    print(1)
+    st.subheader("User's Accomodations")
+    options = ["Hotel", "Hostel", "Homestay"]
+    selected = option_menu("Sort by Accomodation Type", options,
+                           orientation="horizontal")
+    if selected == "Homestay":
+        if 'user_email' in st.session_state:
+            trips_df, error = fetch_trips(st.session_state['user_email'])
+            if not trips_df.empty:
+                trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+                homestay_df, error = get_accomodation_homestays(trip_ids)
+                if not homestay_df.empty:
+                    st.dataframe(homestay_df)
+                else:
+                    st.error(error or "No homestay Accomodation found.")
+            else:
+                st.error("No trips found to display.")
+        else:
+            st.error("Please log in to view accomodations.")
+
+    if selected == "Hostel":
+        if 'user_email' in st.session_state:
+            trips_df, error = fetch_trips(st.session_state['user_email'])
+            if not trips_df.empty:
+                trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+                hostel_df, error = get_accomodation_hostels(trip_ids)
+                if not hostel_df.empty:
+                    st.dataframe(hostel_df)
+                else:
+                    st.error(error or "No Hostel Accomodation found.")
+            else:
+                st.error("No trips found to display.")
+        else:
+            st.error("Please log in to view accomodations.")
+
+    if selected == "Hotel":
+        if 'user_email' in st.session_state:
+            trips_df, error = fetch_trips(st.session_state['user_email'])
+            if not trips_df.empty:
+                trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+                hotel_df, error = get_accomodation_hotels(trip_ids)
+                if not hotel_df.empty:
+                    st.dataframe(hotel_df)
+                else:
+                    st.error(error or "No Hotel Accomodation found.")
+            else:
+                st.error("No trips found to display.")
+        else:
+            st.error("Please log in to view accomodations.")
+
 
 def main():
     st.title('Travel Itinerary App')
@@ -284,7 +333,9 @@ def main():
         show_user_info()
         options.remove("Sign Up")
         options.remove("Login")
-        options += ["Your Trips", "Destinations", "Activities", "Accommodations", "Logout"]
+        icons.remove("person-plus")
+        icons.remove("door-open")
+        options += ["Trips", "Destinations", "Activities", "Accommodations", "Logout"]
         icons += ["map", "globe", "biking", "hotel", "box-arrow-right"]
 
     selected = option_menu("Main Menu", options, icons=icons, menu_icon="cast", default_index=0,
@@ -298,7 +349,7 @@ def main():
         signup_page()
     elif selected == "Login":
         login_page()
-    elif selected == "Your Trips" and 'user_email' in st.session_state:
+    elif selected == "Trips" and 'user_email' in st.session_state:
         display_trips()
     elif selected == "Destinations" and 'user_email' in st.session_state:
         display_destinations()
