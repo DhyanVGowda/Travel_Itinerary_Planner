@@ -38,3 +38,10 @@ def delete_trip(trip_id):
     # Make a DELETE request to the delete trip API endpoint
     response = requests.delete(f"{FLASK_SERVER_URL}/Trip/{trip_id}")
     return response
+
+def get_destinations(trip_ids):
+    response = requests.post(f"{FLASK_SERVER_URL}/getDestinationsByTripIds", json={'trip_ids': trip_ids})
+    if response.status_code == 200:
+        return pd.DataFrame(response.json()), None
+    else:
+        return pd.DataFrame(), "Failed to fetch destinations."
