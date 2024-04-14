@@ -79,6 +79,7 @@ def get_destinations():
     finally:
         cursor.close()
 
+
 def check_empty(value):
     if value == '':
         return None
@@ -207,7 +208,6 @@ def login():
         cursor.close()
 
 
-
 @app.route('/deleteTrip/<int:trip_id>', methods=['DELETE'])
 def delete_trip(trip_id):
     try:
@@ -222,6 +222,27 @@ def delete_trip(trip_id):
         cursor.close()
 
 
+@app.route('/getAccomodationHomeStayByTripIds', methods=['POST'])
+def get_accommodation_homestay():
+    data = request.get_json()
+    try:
+        trips = data.get('trip_ids')
+        cursor = connection.cursor()
+        sql = ("SELECT thd.trip_id, ah.* "
+               "FROM Accommodation_HomeStay ah "
+               "INNER JOIN Trip_Has_Destination thd "
+               "ON thd.destination_id = ah.destination_id "
+               f"WHERE thd.trip_id IN ({', '.join(map(str, trips))}) ORDER BY thd.trip_id, thd.destination_id;")
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        accommodation_homestays = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        accommodation_homestays_json = json.dumps({'accommodation_homestays': accommodation_homestays},
+                                                  cls=CustomEncoder)
+        return accommodation_homestays_json, 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
 
 
 if __name__ == '__main__':
