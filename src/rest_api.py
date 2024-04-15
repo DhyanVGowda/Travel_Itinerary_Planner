@@ -36,7 +36,7 @@ def add_trip(trip_data):
 
 def delete_trip(trip_id):
     # Make a DELETE request to the delete trip API endpoint
-    response = requests.delete(f"{FLASK_SERVER_URL}/Trip/{trip_id}")
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteTrip/{trip_id}")
     return response
 
 
@@ -53,7 +53,7 @@ def get_accomodation_homestays(trip_ids):
     if response.status_code == 200:
         return pd.DataFrame(response.json().get('accommodation_homestays')), None
     else:
-        return pd.DataFrame(), "Failed to fetch destinations."
+        return pd.DataFrame(), "Failed to fetch accomodations."
 
 
 def get_accomodation_hostels(trip_ids):
@@ -61,7 +61,7 @@ def get_accomodation_hostels(trip_ids):
     if response.status_code == 200:
         return pd.DataFrame(response.json().get('accommodation_hostels')), None
     else:
-        return pd.DataFrame(), "Failed to fetch destinations."
+        return pd.DataFrame(), "Failed to fetch accomodations."
 
 
 def get_accomodation_hotels(trip_ids):
@@ -69,4 +69,16 @@ def get_accomodation_hotels(trip_ids):
     if response.status_code == 200:
         return pd.DataFrame(response.json().get('accommodation_hotels')), None
     else:
-        return pd.DataFrame(), "Failed to fetch destinations."
+        return pd.DataFrame(), "Failed to fetch accomodations."
+
+def get_activities(trip_ids):
+    response = requests.post(f"{FLASK_SERVER_URL}/getActivityByTripIds", json={'trip_ids': trip_ids})
+    if response.status_code == 200:
+        return pd.DataFrame(response.json().get('activities')), None
+    else:
+        return pd.DataFrame(), "Failed to fetch activities."
+
+def delete_destination(destination_id):
+    # Make a DELETE request to the delete trip API endpoint
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteDestination/{destination_id}")
+    return response

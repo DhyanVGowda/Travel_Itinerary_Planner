@@ -259,6 +259,18 @@ def display_destinations():
             destinations_df, error = get_destinations(trip_ids)
             if not destinations_df.empty:
                 st.dataframe(destinations_df)
+
+                with st.expander("Delete Destinations"):
+                    destinations_options = list(destinations_df['destination_id'])
+                    selected_destn_id = st.selectbox('Select Destination Id', destinations_options)
+                    if st.button('Delete Destination'):
+                        response = delete_destination(selected_destn_id)
+                        if response.status_code == 200:
+                            st.success(f"Destination deleted successfully.")
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error('Failed to delete the Destination.' + response.json().get('error'))
             else:
                 st.error(error or "No destinations found.")
         else:
@@ -266,21 +278,23 @@ def display_destinations():
     else:
         st.error("Please log in to view destinations.")
 
+
+
 def display_activities():
-    # st.subheader("User's Activity Data")
-    # if 'user_email' in st.session_state:
-    #     trips_df, error = fetch_trips(st.session_state['user_email'])
-    #     if not trips_df.empty:
-    #         trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
-    #         activity_df, error = get_activities(trip_ids)
-    #         if not activity_df.empty:
-    #             st.dataframe(activity_df)
-    #         else:
-    #             st.error(error or "No Activity found.")
-    #     else:
-    #         st.error("No activity found to display.")
-    # else:
-    #     st.error("Please log in to view Activities Data.")
+    st.subheader("User's Activity Data")
+    if 'user_email' in st.session_state:
+        trips_df, error = fetch_trips(st.session_state['user_email'])
+        if not trips_df.empty:
+            trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+            activity_df, error = get_activities(trip_ids)
+            if not activity_df.empty:
+                st.dataframe(activity_df)
+            else:
+                st.error(error or "No Activity found.")
+        else:
+            st.error("No activity found to display.")
+    else:
+        st.error("Please log in to view Activities Data.")
     print(1)
 
 def display_accommodations():

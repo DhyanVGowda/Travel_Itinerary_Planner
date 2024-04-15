@@ -11,35 +11,7 @@
 #         return jsonify({'error': 'Failed to delete traveller: ' + str(e)}), 500
 #     finally:
 #         cursor.close()
-#
-# @app.route('/deleteDestination/<int:dest_id>', methods=['DELETE'])
-# def delete_destination(dest_id):
-#     try:
-#         cursor = connection.cursor()
-#         cursor.callproc('DeleteDestinationById', [dest_id])
-#         connection.commit()
-#         return jsonify({'message': 'Destination deleted successfully'}), 200
-#     except Error as e:
-#         connection.rollback()
-#         return jsonify({'error': 'Failed to delete destination: ' + str(e)}), 500
-#     finally:
-#         cursor.close()
-#
-#
-# @app.route('/deleteActivity/<int:activity_id>', methods=['DELETE'])
-# def delete_activity(activity_id):
-#     try:
-#         cursor = connection.cursor()
-#         cursor.callproc('DeleteActivityById', [activity_id])
-#         connection.commit()
-#         return jsonify({'message': 'Activity deleted successfully'}), 200
-#     except Error as e:
-#         connection.rollback()
-#         return jsonify({'error': 'Failed to delete activity: ' + str(e)}), 500
-#     finally:
-#         cursor.close()
-#
-#
+
 # @app.route('/deleteExpense/<int:exp_id>', methods=['DELETE'])
 # def delete_expense(exp_id):
 #     try:
@@ -81,47 +53,6 @@
 #     finally:
 #         cursor.close()
 #
-#
-# @app.route('/deleteHomeStay/<int:accom_id>', methods=['DELETE'])
-# def delete_homestay(accom_id):
-#     try:
-#         cursor = connection.cursor()
-#         cursor.callproc('DeleteHomeStayAccommodationById', [accom_id])
-#         connection.commit()
-#         return jsonify({'message': 'Homestay accommodation deleted successfully'}), 200
-#     except Error as e:
-#         connection.rollback()
-#         return jsonify({'error': 'Failed to delete homestay accommodation: ' + str(e)}), 500
-#     finally:
-#         cursor.close()
-#
-#
-# @app.route('/deleteHotel/<int:accom_id>', methods=['DELETE'])
-# def delete_hotel(accom_id):
-#     try:
-#         cursor = connection.cursor()
-#         cursor.callproc('DeleteHotelAccommodationById', [accom_id])
-#         connection.commit()
-#         return jsonify({'message': 'Hotel accommodation deleted successfully'}), 200
-#     except Error as e:
-#         connection.rollback()
-#         return jsonify({'error': 'Failed to delete hotel accommodation: ' + str(e)}), 500
-#     finally:
-#         cursor.close()
-#
-#
-# @app.route('/deleteHostel/<int:accom_id>', methods=['DELETE'])
-# def delete_hostel(accom_id):
-#     try:
-#         cursor = connection.cursor()
-#         cursor.callproc('DeleteHostelAccommodationById', [accom_id])
-#         connection.commit()
-#         return jsonify({'message': 'Hostel accommodation deleted successfully'}), 200
-#     except Error as e:
-#         connection.rollback()
-#         return jsonify({'error': 'Failed to delete hostel accommodation: ' + str(e)}), 500
-#     finally:
-#         cursor.close()
 #
 #
 # @app.route('/deleteEssentialPackingItems/<int:item_id>', methods=['DELETE'])
