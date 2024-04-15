@@ -361,9 +361,11 @@ def add_activity():
     try:
         cursor = connection.cursor()
         cursor.callproc('AddActivity', (loc, description, act_date, start_time, end_time, cst, dest_id))
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        activity_id = cursor.fetchone()[0]
         # Commit the transaction
         connection.commit()
-        return jsonify({'message': 'Activity added successfully'}), 201
+        return jsonify({'message': 'Activity added successfully', 'activity_id': activity_id}), 201
     except Error as e:
         print("Failed to add an activity: ", str(e))
         return jsonify({'error': str(e)}), 500
@@ -374,19 +376,13 @@ def add_activity():
 @app.route('/addSightSeeingActivity', methods=['POST'])
 def add_sightseeing_activity():
     data = request.json
+    activity_id = data['activity_id']
     site_type = data['site_type']
     site_description = check_empty(data['site_description'])
     try:
         cursor = connection.cursor()
-        # Get the latest activity ID
-        cursor.execute("SELECT MAX(activity_id) FROM Activity")
-        result = cursor.fetchone()
-        act_id = result[0] if result[0] else 1  # If no activity exists yet, start from 1
-        act_id += 1  # Increment to get the next activity ID
-
         # Call the AddSightseeingActivity procedure
-        cursor.callproc('AddSightseeingActivity', [act_id, site_type, site_description])
-
+        cursor.callproc('AddSightseeingActivity', [activity_id, site_type, site_description])
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'SightSeeing Activity added successfully'}), 201
