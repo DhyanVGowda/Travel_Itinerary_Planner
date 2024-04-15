@@ -91,7 +91,7 @@ def delete_destination(destination_id, trip_id):
 
 def delete_homestay(accomodation_id):
     # Make a DELETE request to the delete trip API endpoint
-    response = requests.delete(f"{FLASK_SERVER_URL}/deleteHomestay/{accomodation_id}")
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteHomeStay/{accomodation_id}")
     return response
 
 def delete_hostel(accomodation_id):
@@ -101,5 +101,5 @@ def delete_hostel(accomodation_id):
 
 def delete_hotel(accomodation_id):
     # Make a DELETE request to the delete trip API endpoint
-    response = requests.delete(f"{FLASK_SERVER_URL}/deleteHostel/{accomodation_id}")
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteHotel/{accomodation_id}")
     return response

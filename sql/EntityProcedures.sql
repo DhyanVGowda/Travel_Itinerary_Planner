@@ -134,19 +134,19 @@ DELIMITER ;
 
 
 
--- -- Procedure to add a new destination
--- DELIMITER //
--- CREATE PROCEDURE AddDestination(
---     IN dest_name VARCHAR(255),
---     IN cntry VARCHAR(100),
---     IN arr_date DATE,
---     IN dep_date DATE
--- )
--- BEGIN
---     INSERT INTO Destination (destination_name, country, arrival_date, departure_date)
---     VALUES (dest_name, cntry, arr_date, dep_date);
--- END //
--- DELIMITER ;
+ -- Procedure to add a new destination
+ DELIMITER //
+ CREATE PROCEDURE AddDestination(
+     IN dest_name VARCHAR(255),
+     IN cntry VARCHAR(100),
+     IN arr_date DATE,
+     IN dep_date DATE
+ )
+ BEGIN
+     INSERT INTO Destination (destination_name, country, arrival_date, departure_date)
+     VALUES (dest_name, cntry, arr_date, dep_date);
+ END //
+ DELIMITER ;
 
 -- -- Procedure to delete a destination by destination ID
 -- DELIMITER //

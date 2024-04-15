@@ -311,20 +311,19 @@ def display_accommodations():
                 homestay_df, error = get_accomodation_homestays(trip_ids)
                 if not homestay_df.empty:
                     st.dataframe(homestay_df)
+                    with st.expander("Delete Homestay"):
+                        homstay_options = list(homestay_df['accommodation_id'])
+                        selected_homestay_id = st.selectbox('Select Homestay ID', homstay_options)
+                        if st.button('Delete Homestay'):
+                            response = delete_homestay(selected_homestay_id)
+                            if response.status_code == 200:
+                                st.success(f"Homestay deleted successfully.")
+                                time.sleep(1)
+                                st.experimental_rerun()
+                            else:
+                                st.error('Failed to delete the Homestay.')
                 else:
                     st.error(error or "No homestay Accomodation found.")
-
-                with st.expander("Delete Homestay"):
-                    trip_options = list(homestay_df[''])
-                    selected_homestay_id = st.selectbox('Select Homestay ID', trip_options)
-                    if st.button('Delete Homestay'):
-                        response = delete_homestay(selected_homestay_id)
-                        if response.status_code == 200:
-                            st.success(f"Homestay deleted successfully.")
-                            time.sleep(1)
-                            st.experimental_rerun()
-                        else:
-                            st.error('Failed to delete the Homestay.')
             else:
                 st.error("No trips found to display.")
         else:
@@ -338,6 +337,17 @@ def display_accommodations():
                 hostel_df, error = get_accomodation_hostels(trip_ids)
                 if not hostel_df.empty:
                     st.dataframe(hostel_df)
+                    with st.expander("Delete Hostel"):
+                        hostel_options = list(hostel_df['accommodation_id'])
+                        selected_hostel_id = st.selectbox('Select Hostel ID', hostel_options)
+                        if st.button('Delete Hostel'):
+                            response = delete_hostel(selected_hostel_id)
+                            if response.status_code == 200:
+                                st.success(f"Hostel deleted successfully.")
+                                time.sleep(1)
+                                st.experimental_rerun()
+                            else:
+                                st.error('Failed to delete the Hostel.')
                 else:
                     st.error(error or "No Hostel Accomodation found.")
             else:
@@ -353,6 +363,18 @@ def display_accommodations():
                 hotel_df, error = get_accomodation_hotels(trip_ids)
                 if not hotel_df.empty:
                     st.dataframe(hotel_df)
+
+                    with st.expander("Delete Hotel"):
+                        hotel_options = list(hotel_df['accommodation_id'])
+                        selected_hotel_id = st.selectbox('Select Hotel ID', hotel_options)
+                        if st.button('Delete Hotel'):
+                            response = delete_hotel(selected_hotel_id)
+                            if response.status_code == 200:
+                                st.success(f"Hotel deleted successfully.")
+                                time.sleep(1)
+                                st.experimental_rerun()
+                            else:
+                                st.error('Failed to delete the Hotel.')
                 else:
                     st.error(error or "No Hotel Accomodation found.")
             else:
