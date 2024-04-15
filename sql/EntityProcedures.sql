@@ -49,6 +49,8 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE DeleteActivityById(IN act_id INT)
 BEGIN
+    DELETE FROM Activity_SightSeeing WHERE activity_id = act_id;
+    DELETE FROM Activity_AdventureSport WHERE activity_id = act_id;
     DELETE FROM Activity WHERE activity_id = act_id;
 END //
 DELIMITER ;
