@@ -338,7 +338,7 @@ def delete_destination(trip_id, dest_id):
 def delete_activity(activity_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteActivityByIdDeleteActivityById', [activity_id])
+        cursor.callproc('DeleteActivityById', [activity_id])
         connection.commit()
         return jsonify({'message': 'Activity deleted successfully'}), 200
     except Error as e:
