@@ -244,28 +244,28 @@ DELIMITER ;
  END //
  DELIMITER ;
 
--- -- Procedure to add a new hotel accommodation
--- DELIMITER //
--- CREATE PROCEDURE AddHotelAccommodation(
---     IN name VARCHAR(255),
---     IN cost DECIMAL(10, 2),
---     IN phone VARCHAR(20),
---     IN checkin DATE,
---     IN checkout DATE,
---     IN street VARCHAR(255),
---     IN street_no VARCHAR(255),
---     IN city VARCHAR(255),
---     IN state VARCHAR(255),
---     IN zip VARCHAR(20),
---     IN dest_id INT,
---     IN rooms INT,
---     IN meal BOOLEAN,
---     IN star ENUM('1','2','3','4','5')
--- )
--- BEGIN
---     INSERT INTO Accommodation_Hotel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, number_of_rooms, complimentary_meal, star_rating)
---     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, rooms, meal, star);
--- END //
+ -- Procedure to add a new hotel accommodation
+ DELIMITER //
+ CREATE PROCEDURE AddHotelAccommodation(
+     IN name VARCHAR(255),
+     IN cost DECIMAL(10, 2),
+     IN phone VARCHAR(20),
+     IN checkin DATE,
+     IN checkout DATE,
+     IN street VARCHAR(255),
+     IN street_no VARCHAR(255),
+     IN city VARCHAR(255),
+     IN state VARCHAR(255),
+     IN zip VARCHAR(20),
+     IN dest_id INT,
+     IN rooms INT,
+     IN meal BOOLEAN,
+     IN star ENUM('1','2','3','4','5')
+ )
+ BEGIN
+     INSERT INTO Accommodation_Hotel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, number_of_rooms, complimentary_meal, star_rating)
+     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, rooms, meal, star);
+ END //
 -- DELIMITER ;
 
 -- -- Procedure to add a new hostel accommodation

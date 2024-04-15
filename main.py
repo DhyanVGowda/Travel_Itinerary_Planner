@@ -210,7 +210,7 @@ def add_other_traveller():
 
 
 @app.route('/addHomeStay', methods=['POST'])
-def add_other_traveller():
+def add_home_stay():
     data = request.json
     accommodation_name = data['accommodation_name']
     cost_per_night = data['cost_per_night']
@@ -223,7 +223,7 @@ def add_other_traveller():
     state = check_empty(data['state'])
     zipcode = check_empty(data['zipcode'])
     destination_id = data['destination_id']
-    number_of_rooms = check_empty(data['number_of_rooms'])
+    number_of_rooms = data['number_of_rooms']
     is_cook_available = check_empty(data['is_cook_available'])
     stay_type = check_empty(data['stay_type'])
     is_pet_allowed = check_empty(data['is_pet_allowed'])
@@ -254,6 +254,52 @@ def add_other_traveller():
         return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
+
+
+@app.route('/addHotel', methods=['POST'])
+def add_hotel():
+    data = request.json
+    accommodation_name = data['accommodation_name']
+    cost_per_night = data['cost_per_night']
+    telephone_number = data['telephone_number']
+    checkin_date = check_empty(data['checkin_date'])
+    checkout_date = check_empty(data['checkout_date'])
+    street_name = check_empty(data['street_name'])
+    street_number = check_empty(data['street_number'])
+    city = check_empty(data['city'])
+    state = check_empty(data['state'])
+    zipcode = check_empty(data['zipcode'])
+    destination_id = data['destination_id']
+    number_of_rooms = data['number_of_rooms']
+    meal = check_empty(data['meal'])
+    star_rating = check_empty(data['star_rating'])
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddHotelAccommodation', (
+            accommodation_name,
+            cost_per_night,
+            telephone_number,
+            checkin_date,
+            checkout_date,
+            street_name,
+            street_number,
+            city,
+            state,
+            zipcode,
+            destination_id,
+            number_of_rooms,
+            meal,
+            star_rating
+        ))
+        # Commit the transaction
+        connection.commit()
+        return jsonify({'message': 'Hotel Accommodation added successfully'}), 201
+    except Error as e:
+        print("Failed to add a Hotel: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
 
 
 @app.route('/login', methods=['POST'])
