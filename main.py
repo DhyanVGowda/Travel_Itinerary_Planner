@@ -654,6 +654,20 @@ def delete_destination(trip_id, dest_id):
         cursor.close()
 
 
+@app.route('/deleteItem/<int:trip_id>/<int:item_id>', methods=['DELETE'])
+def delete_item(trip_id, item_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteTripRequiredItem', [trip_id, item_id])
+        connection.commit()
+        return jsonify({'message': 'Item removed successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to remove item: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
 @app.route('/deleteActivity/<int:activity_id>', methods=['DELETE'])
 def delete_activity(activity_id):
     try:

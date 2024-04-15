@@ -321,16 +321,16 @@ DELIMITER ;
 -- END //
 -- DELIMITER ;
 
--- -- Procedure to delete a trip's required item by trip ID and item ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteTripRequiredItem(
---     IN trip_id INT,
---     IN item_id INT
--- )
--- BEGIN
---     DELETE FROM Trip_Requires_Item WHERE trip_id = trip_id AND item_id = item_id;
--- END //
--- DELIMITER ;
+ -- Procedure to delete a trip's required item by trip ID and item ID
+ DELIMITER //
+ CREATE PROCEDURE DeleteTripRequiredItem(
+     IN trip_id INT,
+     IN item_id INT
+ )
+ BEGIN
+     DELETE FROM Trip_Requires_Item WHERE trip_id = trip_id AND item_id = item_id;
+ END //
+ DELIMITER ;
 
  -- Procedure to add a trip's destination
  DELIMITER //
