@@ -209,17 +209,58 @@ def add_other_traveller():
         cursor.close()
 
 
+@app.route('/addHomeStay', methods=['POST'])
+def add_other_traveller():
+    data = request.json
+    accommodation_name = data['accommodation_name']
+    cost_per_night = data['cost_per_night']
+    telephone_number = data['telephone_number']
+    checkin_date = check_empty(data['checkin_date'])
+    checkout_date = check_empty(data['checkout_date'])
+    street_name = check_empty(data['street_name'])
+    street_number = check_empty(data['street_number'])
+    city = check_empty(data['city'])
+    state = check_empty(data['state'])
+    zipcode = check_empty(data['zipcode'])
+    destination_id = data['destination_id']
+    number_of_rooms = check_empty(data['number_of_rooms'])
+    is_cook_available = check_empty(data['is_cook_available'])
+    stay_type = check_empty(data['stay_type'])
+    is_pet_allowed = check_empty(data['is_pet_allowed'])
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddHomeStayAccommodation', (
+            accommodation_name,
+            cost_per_night,
+            telephone_number,
+            checkin_date,
+            checkout_date,
+            street_name,
+            street_number,
+            city,
+            state,
+            zipcode,
+            destination_id,
+            number_of_rooms,
+            is_cook_available,
+            stay_type,
+            is_pet_allowed
+        ))
+        # Commit the transaction
+        connection.commit()
+        return jsonify({'message': 'HomeStay Accommodation added successfully'}), 201
+    except Error as e:
+        print("Failed to add a  Homestay: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-
-    if not email:
-        return jsonify({'error': 'Email is required'}), 400
-
-    if not password:
-        return jsonify({'error': 'Password is required'}), 400
 
     try:
         cursor = connection.cursor()
