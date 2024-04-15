@@ -119,3 +119,19 @@ def add_hotel(hotel_data):
 def add_hostel(hostel_data):
     response = requests.post(f"{FLASK_SERVER_URL}/addHostel", json=hostel_data)
     return response
+
+def add_activity(activity_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addActivity", json=activity_data)
+    return response
+
+def add_sightseeing_activity(sightseeing_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addSightSeeingActivity", json=sightseeing_data)
+    return response
+
+def add_adventure_sport_activity(adventure_sport_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addAdventureSportActivity", json=adventure_sport_data)
+    return response
+
+def delete_activity(activity_id):
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteActivity/{activity_id}")
+    return response

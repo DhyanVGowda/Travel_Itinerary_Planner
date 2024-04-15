@@ -249,11 +249,6 @@ def show_user_info():
         st.sidebar.write("Please log in to see traveler information.")
 
 
-import requests
-import streamlit as st
-import time
-
-
 def add_hotel_page(trip_ids):
     destinations_df, error = get_destinations(trip_ids)
     if not destinations_df.empty:
@@ -492,13 +487,26 @@ def display_activities():
             activity_df, error = get_activities(trip_ids)
             if not activity_df.empty:
                 st.dataframe(activity_df)
+
+                with st.expander("Delete Activity"):
+                    activity_options = list(activity_df['activity_id'])
+                    selected_activity_id = st.selectbox('Select Activity ID', activity_options)
+                    if st.button('Delete Activity'):
+                        response = delete_activity(selected_activity_id)
+                        if response.status_code == 200:
+                            st.success("Activity deleted successfully.")
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error(f"Failed to delete activity. Error: {response.json().get('error')}")
             else:
                 st.error(error or "No Activity found.")
+
+            add_activity_page(trip_ids)
         else:
             st.error("No activity found to display.")
     else:
         st.error("Please log in to view Activities Data.")
-    print(1)
 
 
 def display_accommodations():
@@ -633,6 +641,131 @@ def main():
             if key in st.session_state:
                 del st.session_state[key]
         st.experimental_rerun()
+
+
+def add_activity_page(trip_ids):
+    destination_df, error = get_destinations(trip_ids)
+    if not destination_df.empty:
+        st.subheader("Add Activity")
+        activity_type = st.selectbox("Select Type of Activity", ["Sightseeing", "Adventure Sport", "Other"])
+
+        if activity_type == "Sightseeing":
+            add_sightseeing_activity_form(destination_df['destination_id'])
+        elif activity_type == "Adventure Sport":
+            add_adventure_sport_activity_form(destination_df['destination_id'])
+        elif activity_type == "Other":
+            add_other_activity_form(destination_df['destination_id'])
+
+
+def add_sightseeing_activity_form(destination_options):
+    with st.form("add_sightseeing_activity_form", clear_on_submit=True):
+        st.subheader("Add Sightseeing Activity")
+
+        destination_id = st.selectbox('Select Destination ID', destination_options)
+        activity_location = st.text_input('Activity Location')
+        activity_description = st.text_area('Activity Description')
+        activity_date = st.date_input('Activity Date', None)
+        start_time = st.time_input('Start Time', None)
+        end_time = st.time_input('End Time', None)
+        cost = st.number_input('Cost', step=10)
+        site_type = st.text_input('Site Type')
+        site_description = st.text_area('Site Description')
+
+        submit_button = st.form_submit_button('Add Sightseeing Activity')
+
+        if submit_button:
+            if not site_type or not site_description:
+                st.error("Site Type and Site Descriptions can't be empty for adding Sightseeing Activity.")
+            else:
+                sightseeing_data = {
+                    "activity_location": activity_location,
+                    "activity_description": activity_description,
+                    "activity_date": activity_date.isoformat() if activity_date else None,
+                    "start_time": start_time.strftime('%H:%M:%S') if start_time else None,
+                    "end_time": end_time.strftime('%H:%M:%S') if end_time else None,
+                    "cost": cost,
+                    "destination_id": destination_id,
+                    "site_type": site_type,
+                    "site_description": site_description
+                }
+                response = add_sightseeing_activity(sightseeing_data)
+                if response.status_code == 201:
+                    st.success('Sightseeing activity added successfully.')
+                    time.sleep(1)
+                    st.experimental_rerun()
+                else:
+                    st.error('Failed to add sightseeing activity.')
+
+
+def add_adventure_sport_activity_form(destination_options):
+    with st.form("add_adventure_sport_activity_form", clear_on_submit=True):
+        st.subheader("Add Adventure Sport Activity")
+        destination_id = st.selectbox('Select Destination ID', destination_options)
+        activity_location = st.text_input('Activity Location')
+        activity_description = st.text_area('Activity Description')
+        activity_date = st.date_input('Activity Date', None)
+        start_time = st.time_input('Start Time', None)
+        end_time = st.time_input('End Time', None)
+        cost = st.number_input('Cost', step=10)
+        sport_type = st.text_input('Sport Type')
+        minimum_age = st.number_input('Minimum Age', min_value=0)
+        other_restrictions = st.text_area('Other Restrictions')
+        submit_button = st.form_submit_button('Add Adventure Sport Activity')
+
+        if submit_button:
+            if not sport_type or not minimum_age:
+                st.error("Sport Type and Minimum Age Restrictions can't be empty for adding Adventure Sport Activity.")
+            else:
+                adventure_sport_data = {
+                    "activity_location": activity_location,
+                    "activity_description": activity_description,
+                    "activity_date": activity_date.isoformat() if activity_date else None,
+                    "start_time": start_time.strftime('%H:%M:%S') if start_time else None,
+                    "end_time": end_time.strftime('%H:%M:%S') if end_time else None,
+                    "cost": cost,
+                    "destination_id": destination_id,
+                    "sport_type": sport_type,
+                    "min_age": minimum_age,
+                    "restrictions": other_restrictions
+                }
+                response = add_adventure_sport_activity(adventure_sport_data)
+                if response.status_code == 201:
+                    st.success('Adventure sport activity added successfully.')
+                    time.sleep(1)
+                    st.experimental_rerun()
+                else:
+                    st.error('Failed to add adventure sport activity.')
+
+
+def add_other_activity_form(destination_options):
+    with st.form("add_other_activity_form", clear_on_submit=True):
+        st.subheader("Add Activity")
+        destination_id = st.selectbox('Select Destination ID',  destination_options)
+        activity_location = st.text_input('Activity Location')
+        activity_description = st.text_area('Activity Description')
+        activity_date = st.date_input('Activity Date', None)
+        start_time = st.time_input('Start Time', None)
+        end_time = st.time_input('End Time', None)
+        cost = st.number_input('Cost', step=10)
+        submit_button = st.form_submit_button('Add Activity')
+
+        if submit_button:
+            other_activity_data = {
+                "activity_location": activity_location,
+                "activity_description": activity_description,
+                "activity_date": activity_date.isoformat() if activity_date else None,
+                "start_time": start_time.strftime('%H:%M:%S') if start_time else None,
+                "end_time": end_time.strftime('%H:%M:%S') if end_time else None,
+                "cost": cost,
+                "destination_id": destination_id
+            }
+            response = add_activity(other_activity_data)
+            if response.status_code == 201:
+                st.success('Activity added successfully.')
+                time.sleep(1)
+                st.experimental_rerun()
+            else:
+                st.error('Failed to add activity.')
 
 
 if __name__ == "__main__":
