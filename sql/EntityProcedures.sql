@@ -196,19 +196,19 @@ DELIMITER ;
 -- DELIMITER ;
 
 
--- -- Procedure to add a new adventure sport activity
--- DELIMITER //
--- CREATE PROCEDURE AddAdventureSportActivity(
---     IN act_id INT,
---     IN sport_type VARCHAR(50),
---     IN min_age INT,
---     IN restrictions TEXT
--- )
--- BEGIN
---     INSERT INTO Activity_AdventureSport (activity_id, sport_type, minimum_age, other_restrictions)
---     VALUES (act_id, sport_type, min_age, restrictions);
--- END //
--- DELIMITER ;
+ -- Procedure to add a new adventure sport activity
+ DELIMITER //
+ CREATE PROCEDURE AddAdventureSportActivity(
+     IN act_id INT,
+     IN sport_type VARCHAR(50),
+     IN min_age INT,
+     IN restrictions TEXT
+ )
+ BEGIN
+     INSERT INTO Activity_AdventureSport (activity_id, sport_type, minimum_age, other_restrictions)
+     VALUES (act_id, sport_type, min_age, restrictions);
+ END //
+ DELIMITER ;
 
 -- -- Procedure to delete an adventure sport activity by activity ID
 -- DELIMITER //
