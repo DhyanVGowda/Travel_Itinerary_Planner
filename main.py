@@ -348,6 +348,28 @@ def add_hostel():
         cursor.close()
 
 
+@app.route('/addActivity', methods=['POST'])
+def add_activity():
+    data = request.json
+    loc = data['activity_location']
+    description = check_empty(data['activity_description'])
+    act_date = data['activity_date']
+    start_time = data['start_time']
+    end_time = data['end_time']
+    cst = check_empty(data['cost'])
+    dest_id = data['destination_id']
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddActivity', (loc, description, act_date, start_time, end_time, cst, dest_id))
+        # Commit the transaction
+        connection.commit()
+        return jsonify({'message': 'Activity added successfully'}), 201
+    except Error as e:
+        print("Failed to add an activity: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()

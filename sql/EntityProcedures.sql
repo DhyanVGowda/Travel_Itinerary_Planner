@@ -157,22 +157,22 @@ DELIMITER ;
 -- DELIMITER ;
 
 
--- -- Procedure to add a new activity
--- DELIMITER //
--- CREATE PROCEDURE AddActivity(
---     IN loc VARCHAR(255),
---     IN description TEXT,
---     IN act_date DATE,
---     IN start_time TIME,
---     IN end_time TIME,
---     IN cst DECIMAL(10, 2),
---     IN dest_id INT
--- )
--- BEGIN
---     INSERT INTO Activity (activity_location, activity_description, activity_date, start_time, end_time, cost, destination_id)
---     VALUES (loc, description, act_date, start_time, end_time, cst, dest_id);
--- END //
--- DELIMITER ;
+ -- Procedure to add a new activity
+ DELIMITER //
+ CREATE PROCEDURE AddActivity(
+     IN loc VARCHAR(255),
+     IN description TEXT,
+     IN act_date DATE,
+     IN start_time TIME,
+     IN end_time TIME,
+     IN cst DECIMAL(10, 2),
+     IN dest_id INT
+ )
+ BEGIN
+     INSERT INTO Activity (activity_location, activity_description, activity_date, start_time, end_time, cost, destination_id)
+     VALUES (loc, description, act_date, start_time, end_time, cst, dest_id);
+ END //
+ DELIMITER ;
 
 -- -- Procedure to add a new sightseeing activity
 -- DELIMITER //
