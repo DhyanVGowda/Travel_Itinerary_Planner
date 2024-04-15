@@ -391,11 +391,11 @@ def delete_hostel(accom_id):
 
 
 if __name__ == '__main__':
-    username = "root"
-    password = "anshuman"
-    connection = connect_to_database(username, password)
+    with open('configs.json', 'r') as file:
+        configs = json.load(file)
+    connection = connect_to_database(configs["db_username"], configs["db_password"])
     if connection is not None:
-        app.run(debug=True)
+        app.run(debug=True, port=int(configs["port"]))
     else:
         print("Cant connect to db")
         exit(-1)

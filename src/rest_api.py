@@ -1,7 +1,11 @@
+import json
+
 import requests
 import pandas as pd
 
-FLASK_SERVER_URL = "http://127.0.0.1:5000"
+with open('../configs.json', 'r') as file:
+    configs = json.load(file)
+FLASK_SERVER_URL = "http://127.0.0.1:" + configs["port"]
 
 
 def signup_user(signup_data):
@@ -71,12 +75,14 @@ def get_accomodation_hotels(trip_ids):
     else:
         return pd.DataFrame(), "Failed to fetch accomodations."
 
+
 def get_activities(trip_ids):
     response = requests.post(f"{FLASK_SERVER_URL}/getActivityByTripIds", json={'trip_ids': trip_ids})
     if response.status_code == 200:
         return pd.DataFrame(response.json().get('activities')), None
     else:
         return pd.DataFrame(), "Failed to fetch activities."
+
 
 def delete_destination(destination_id, trip_id):
     # Make a DELETE request to the delete trip API endpoint
