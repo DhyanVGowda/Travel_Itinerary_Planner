@@ -189,15 +189,6 @@ DELIMITER ;
  END //
  DELIMITER ;
 
--- -- Procedure to delete a sightseeing activity by activity ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteSightseeingActivityById(IN act_id INT)
--- BEGIN
---     DELETE FROM Activity_SightSeeing WHERE activity_id = act_id;
--- END //
--- DELIMITER ;
-
-
  -- Procedure to add a new adventure sport activity
  DELIMITER //
  CREATE PROCEDURE AddAdventureSportActivity(
@@ -211,15 +202,6 @@ DELIMITER ;
      VALUES (act_id, sport_type, min_age, restrictions);
  END //
  DELIMITER ;
-
--- -- Procedure to delete an adventure sport activity by activity ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteAdventureSportActivityById(IN act_id INT)
--- BEGIN
---     DELETE FROM Activity_AdventureSport WHERE activity_id = act_id;
--- END //
--- DELIMITER ;
-
 
 -- -- Procedure to add a new homestay accommodation
  DELIMITER //
