@@ -174,18 +174,18 @@ DELIMITER ;
  END //
  DELIMITER ;
 
--- -- Procedure to add a new sightseeing activity
--- DELIMITER //
--- CREATE PROCEDURE AddSightseeingActivity(
---     IN act_id INT,
---     IN site_type VARCHAR(50),
---     IN site_description TEXT
--- )
--- BEGIN
---     INSERT INTO Activity_SightSeeing (activity_id, site_type, site_description)
---     VALUES (act_id, site_type, site_description);
--- END //
--- DELIMITER ;
+ -- Procedure to add a new sightseeing activity
+ DELIMITER //
+ CREATE PROCEDURE AddSightseeingActivity(
+     IN act_id INT,
+     IN site_type VARCHAR(50),
+     IN site_description TEXT
+ )
+ BEGIN
+     INSERT INTO Activity_SightSeeing (activity_id, site_type, site_description)
+     VALUES (act_id, site_type, site_description);
+ END //
+ DELIMITER ;
 
 -- -- Procedure to delete a sightseeing activity by activity ID
 -- DELIMITER //
