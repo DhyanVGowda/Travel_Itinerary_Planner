@@ -478,6 +478,20 @@ def delete_trip(trip_id):
         cursor.close()
 
 
+@app.route('/deleteExpense/<int:expense_id>', methods=['DELETE'])
+def delete_expense(expense_id):
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('DeleteExpenseById', [expense_id])
+        connection.commit()
+        return jsonify({'message': 'Expense deleted successfully'}), 200
+    except Error as e:
+        connection.rollback()
+        return jsonify({'error': 'Failed to delete expense: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+
 @app.route('/getAccomodationHomeStayByTripIds', methods=['POST'])
 def get_accommodation_homestay():
     data = request.get_json()
