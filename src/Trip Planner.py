@@ -600,6 +600,62 @@ def display_accommodations():
             st.error("Please log in to view accomodations.")
 
 
+def display_expenses():
+    st.subheader("Expenses")
+    if 'user_email' in st.session_state:
+        trips_df, error = fetch_trips(st.session_state['user_email'])
+        if not trips_df.empty:
+            trip_options = list(trips_df['Trip Id'])
+            selected_trip_id = st.selectbox('Select a Trip ID to manage expenses', trip_options)
+
+            expenses, error = fetch_expenses(selected_trip_id)
+            if expenses:
+                expenses_df = pd.DataFrame(expenses)
+                st.dataframe(expenses_df)
+
+                with st.expander("Add Expense"):
+                    with st.form("add_expense_form", clear_on_submit=True):
+                        expense_date = st.date_input("Date")
+                        expense_category = st.text_input("Category")
+                        expense_description = st.text_area("Description")
+                        amount = st.number_input("Amount", min_value=0.0, format='%f')
+                        currency = st.text_input("Currency", value="USD")
+                        submit_button = st.form_submit_button("Add Expense")
+
+                        if submit_button:
+                            expense_data = {
+                                "expense_date": expense_date.isoformat(),
+                                "expense_category": expense_category,
+                                "expense_description": expense_description,
+                                "amount": amount,
+                                "currency": currency,
+                                "trip_id": selected_trip_id
+                            }
+                            response = create_expense(expense_data)
+                            if response.status_code == 201:
+                                st.success("Expense added successfully.")
+                                time.sleep(1)
+                                st.experimental_rerun()
+                            else:
+                                st.error(f"Failed to add expense. Error: {response.json().get('error')}")
+
+                with st.expander("Delete Expense"):
+                    expense_ids = expenses_df['expense_id'].tolist()
+                    selected_expense_id = st.selectbox("Select an Expense ID to delete", expense_ids)
+                    if st.button('Delete Expense'):
+                        response = delete_expense(selected_expense_id)
+                        if response.status_code == 200:
+                            st.success("Expense deleted successfully.")
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error(f"Failed to delete expense. Error: {response.json().get('error')}")
+            else:
+                st.error(error or "No expenses found for the selected trip.")
+
+    else:
+        st.error("Please log in to view and manage expenses.")
+
 def main():
     st.title('Travel Itinerary App')
 
@@ -614,8 +670,8 @@ def main():
         options.remove("Login")
         icons.remove("person-plus")
         icons.remove("door-open")
-        options += ["Trips", "Destinations", "Activities", "Accommodations", "Logout"]
-        icons += ["map", "globe", "biking", "hotel", "box-arrow-right"]
+        options += ["Trips", "Destinations", "Activities", "Accommodations", "Expenses & Essential Items", "Logout"]
+        icons += ["map", "globe", "biking", "hotel", "credit-card","box-arrow-right"]
 
     selected = option_menu("Main Menu", options, icons=icons, menu_icon="cast", default_index=0,
                            orientation="horizontal")
@@ -636,6 +692,8 @@ def main():
         display_activities()
     elif selected == "Accommodations" and 'user_email' in st.session_state:
         display_accommodations()
+    elif selected == "Expenses & Essential Items" and 'user_email' in st.session_state:
+        display_expenses()
     elif selected == "Logout":
         for key in ['user_email', 'user_info']:
             if key in st.session_state:
