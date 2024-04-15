@@ -301,6 +301,52 @@ def add_hotel():
         cursor.close()
 
 
+@app.route('/addHostel', methods=['POST'])
+def add_hostel():
+    data = request.json
+    accommodation_name = data['accommodation_name']
+    cost_per_night = data['cost_per_night']
+    telephone_number = data['telephone_number']
+    checkin_date = check_empty(data['checkin_date'])
+    checkout_date = check_empty(data['checkout_date'])
+    street_name = check_empty(data['street_name'])
+    street_number = check_empty(data['street_number'])
+    city = check_empty(data['city'])
+    state = check_empty(data['state'])
+    zipcode = check_empty(data['zipcode'])
+    destination_id = data['destination_id']
+    meal = check_empty(data['meal'])
+    bath_type = check_empty(data['bath_type'])
+    wifi = check_empty(data['wifi'])
+    mixed_dorm = check_empty(data['mixed_dorm'])
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddHostelAccommodation', (
+            accommodation_name,
+            cost_per_night,
+            telephone_number,
+            checkin_date,
+            checkout_date,
+            street_name,
+            street_number,
+            city,
+            state,
+            zipcode,
+            destination_id,
+            meal,
+            bath_type,
+            wifi,
+            mixed_dorm
+        ))
+        # Commit the transaction
+        connection.commit()
+        return jsonify({'message': 'Hostel Accommodation added successfully'}), 201
+    except Error as e:
+        print("Failed to add a Hostel: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
 
 @app.route('/login', methods=['POST'])
 def login():

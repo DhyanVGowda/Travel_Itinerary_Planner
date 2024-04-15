@@ -269,29 +269,29 @@ DELIMITER ;
 -- DELIMITER ;
 
 -- -- Procedure to add a new hostel accommodation
--- DELIMITER //
--- CREATE PROCEDURE AddHostelAccommodation(
---     IN name VARCHAR(255),
---     IN cost DECIMAL(10, 2),
---     IN phone VARCHAR(20),
---     IN checkin DATE,
---     IN checkout DATE,
---     IN street VARCHAR(255),
---     IN street_no VARCHAR(255),
---     IN city VARCHAR(255),
---     IN state VARCHAR(255),
---     IN zip VARCHAR(20),
---     IN dest_id INT,
---     IN meal BOOLEAN,
---     IN bath_type ENUM('Shared', 'Private'),
---     IN wifi BOOLEAN,
---     IN mixed_dorm BOOLEAN
--- )
--- BEGIN
---     INSERT INTO Accommodation_Hostel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, meal_service, bathroom_type, free_wifi, mixed_gender_dorm)
---     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, meal, bath_type, wifi, mixed_dorm);
--- END //
--- DELIMITER ;
+ DELIMITER //
+ CREATE PROCEDURE AddHostelAccommodation(
+     IN name VARCHAR(255),
+     IN cost DECIMAL(10, 2),
+     IN phone VARCHAR(20),
+     IN checkin DATE,
+     IN checkout DATE,
+     IN street VARCHAR(255),
+     IN street_no VARCHAR(255),
+     IN city VARCHAR(255),
+     IN state VARCHAR(255),
+     IN zip VARCHAR(20),
+     IN dest_id INT,
+     IN meal BOOLEAN,
+     IN bath_type ENUM('Shared', 'Private'),
+     IN wifi BOOLEAN,
+     IN mixed_dorm BOOLEAN
+ )
+ BEGIN
+     INSERT INTO Accommodation_Hostel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, meal_service, bathroom_type, free_wifi, mixed_gender_dorm)
+     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, meal, bath_type, wifi, mixed_dorm);
+ END //
+ DELIMITER ;
 
 -- -- Procedure to add a new essential packing item
 -- DELIMITER //
