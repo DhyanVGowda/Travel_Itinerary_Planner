@@ -515,6 +515,28 @@ def get_accommodation_homestay():
         cursor.close()
 
 
+@app.route('/getItemsByTripIds', methods=['POST'])
+def get_items_by_trip_ids():
+    data = request.get_json()
+    try:
+        trip_ids = data.get('trip_ids')
+        cursor = connection.cursor()
+        sql = ("SELECT tri.trip_id, e.* "
+               "FROM Trip_Requires_Item tri "
+               "INNER JOIN EssentialPackingItems e "
+               "ON tri.item_id = e.item_id "
+               f"WHERE tri.trip_id IN ({', '.join(map(str, trip_ids))});")
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        items = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        items_json = json.dumps({'items': items}, cls=CustomEncoder)
+        return items_json, 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 @app.route('/getAccomodationHostelByTripIds', methods=['POST'])
 def get_accommodation_hostel():
     data = request.get_json()
