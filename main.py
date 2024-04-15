@@ -193,6 +193,34 @@ def add_destination_to_trip():
         return jsonify({'error': 'Failed to add destination to trip'}), 500
 
 
+@app.route('/addItemToTrip', methods=['POST'])
+def add_item_to_trip():
+    data = request.get_json()
+    trip_id = data.get('trip_id')
+    item_name = data.get('item_name')
+    try:
+        with connection.cursor() as cursor:
+            connection.begin()
+
+            # Create a new destination entry
+            cursor.callproc('AddEssentialPackingItem', [item_name])
+
+            # Get the destination ID
+            cursor.execute("SELECT LAST_INSERT_ID()")
+            item_id = cursor.fetchone()[0]
+
+            # Add the trip's essential item
+            cursor.callproc('AddTripItem', [trip_id, item_id])
+
+            connection.commit()
+
+            return jsonify({'message': 'Item added to trip successfully'}), 201
+    except Error as e:
+        print("Failed to add destination to trip:", e)
+        connection.rollback()
+        return jsonify({'error': 'Failed to add item to trip'}), 500
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()

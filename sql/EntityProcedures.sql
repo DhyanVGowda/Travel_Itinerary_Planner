@@ -277,16 +277,16 @@ DELIMITER ;
  END //
  DELIMITER ;
 
--- -- Procedure to add a new essential packing item
--- DELIMITER //
--- CREATE PROCEDURE AddEssentialPackingItem(
---     IN item_name VARCHAR(255)
--- )
--- BEGIN
---     INSERT INTO EssentialPackingItems (item_name)
---     VALUES (item_name);
--- END //
--- DELIMITER ;
+ -- Procedure to add a new essential packing item
+ DELIMITER //
+ CREATE PROCEDURE AddEssentialPackingItem(
+     IN item_name VARCHAR(255)
+ )
+ BEGIN
+     INSERT INTO EssentialPackingItems (item_name)
+     VALUES (item_name);
+ END //
+ DELIMITER ;
 
 -- -- Procedure to delete an essential packing item by item ID
 -- DELIMITER //
@@ -332,16 +332,28 @@ DELIMITER ;
 -- END //
 -- DELIMITER ;
 
--- -- Procedure to add a trip's destination
--- DELIMITER //
--- CREATE PROCEDURE AddTripDestination(
---     IN dest_id INT,
---     IN trip_id INT,
---     IN transport_mode TEXT,
---     IN travel_dur TIME
--- )
--- BEGIN
---     INSERT INTO Trip_Has_Destination (destination_id, trip_id, transportation_mode, travel_duration)
---     VALUES (dest_id, trip_id, transport_mode, travel_dur);
--- END //
--- DELIMITER ;
+ -- Procedure to add a trip's destination
+ DELIMITER //
+ CREATE PROCEDURE AddTripDestination(
+     IN dest_id INT,
+     IN trip_id INT,
+     IN transport_mode TEXT,
+     IN travel_dur TIME
+ )
+ BEGIN
+     INSERT INTO Trip_Has_Destination (destination_id, trip_id, transportation_mode, travel_duration)
+     VALUES (dest_id, trip_id, transport_mode, travel_dur);
+ END //
+ DELIMITER ;
+
+ -- Procedure to add a trip's essential item
+  DELIMITER //
+ CREATE PROCEDURE AddTripItem(
+     IN trip_id INT,
+     IN item_id INT
+ )
+ BEGIN
+     INSERT INTO Trip_Requires_Item (trip_id, item_id)
+     VALUES (trip_id, item_id);
+ END //
+ DELIMITER ;
