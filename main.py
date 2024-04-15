@@ -392,7 +392,7 @@ def delete_hostel(accom_id):
 
 if __name__ == '__main__':
     username = "root"
-    password = "parrvaltd118"
+    password = "anshuman"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
