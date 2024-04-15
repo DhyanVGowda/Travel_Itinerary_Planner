@@ -80,6 +80,26 @@ def get_destinations():
         cursor.close()
 
 
+@app.route('/getExpensesByTripIds', methods=['POST'])
+def get_expenses():
+    data = request.get_json()
+    try:
+        trip_ids = data.get('trip_ids')
+        cursor = connection.cursor()
+        sql = ("SELECT * FROM Expense "
+               f"WHERE trip_id IN ({', '.join(map(str, trip_ids))}) "
+               "ORDER BY trip_id DESC, expense_date DESC;")
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        expenses = [dict(zip([column[0] for column in cursor.description], row)) for row in result]
+        expenses_json = json.dumps({'expenses': expenses}, cls=CustomEncoder)
+        return expenses_json, 200
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 def check_empty(value):
     if value == '':
         return None
@@ -229,23 +249,11 @@ def add_home_stay():
     is_pet_allowed = check_empty(data['is_pet_allowed'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddHomeStayAccommodation', (
-            accommodation_name,
-            cost_per_night,
-            telephone_number,
-            checkin_date,
-            checkout_date,
-            street_name,
-            street_number,
-            city,
-            state,
-            zipcode,
-            destination_id,
-            number_of_rooms,
-            is_cook_available,
-            stay_type,
-            is_pet_allowed
-        ))
+        cursor.callproc('AddHomeStayAccommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
+                                                     checkout_date, street_name, street_number, city, state, zipcode,
+                                                     destination_id, number_of_rooms, is_cook_available, stay_type,
+                                                     is_pet_allowed))
+
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'HomeStay Accommodation added successfully'}), 201
@@ -275,22 +283,10 @@ def add_hotel():
     star_rating = check_empty(data['star_rating'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddHotelAccommodation', (
-            accommodation_name,
-            cost_per_night,
-            telephone_number,
-            checkin_date,
-            checkout_date,
-            street_name,
-            street_number,
-            city,
-            state,
-            zipcode,
-            destination_id,
-            number_of_rooms,
-            meal,
-            star_rating
-        ))
+        cursor.callproc('AddHotelAccommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
+                                                  checkout_date, street_name, street_number, city, state, zipcode,
+                                                  destination_id, number_of_rooms, meal, star_rating))
+
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'Hotel Accommodation added successfully'}), 201
@@ -321,23 +317,10 @@ def add_hostel():
     mixed_dorm = check_empty(data['mixed_dorm'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddHostelAccommodation', (
-            accommodation_name,
-            cost_per_night,
-            telephone_number,
-            checkin_date,
-            checkout_date,
-            street_name,
-            street_number,
-            city,
-            state,
-            zipcode,
-            destination_id,
-            meal,
-            bath_type,
-            wifi,
-            mixed_dorm
-        ))
+        cursor.callproc('AddHostelAccommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
+                                                   checkout_date, street_name, street_number, city, state, zipcode,
+                                                   destination_id, meal, bath_type, wifi, mixed_dorm))
+
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'Hostel Accommodation added successfully'}), 201

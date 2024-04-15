@@ -110,29 +110,29 @@ DELIMITER ;
 -- END //
 -- DELIMITER ;
 
--- -- Procedure to add a new expense
--- DELIMITER //
--- CREATE PROCEDURE AddExpense(
---     IN exp_date DATE,
---     IN exp_category VARCHAR(100),
---     IN exp_description TEXT,
---     IN amt DECIMAL(10, 2),
---     IN curr VARCHAR(10),
---     IN trip INT
--- )
--- BEGIN
---     INSERT INTO Expense (expense_date, expense_category, expense_description, amount, currency, trip_id)
---     VALUES (exp_date, exp_category, exp_description, amt, curr, trip);
--- END //
--- DELIMITER ;
+ -- Procedure to add a new expense
+ DELIMITER //
+ CREATE PROCEDURE AddExpense(
+     IN exp_date DATE,
+     IN exp_category VARCHAR(100),
+     IN exp_description TEXT,
+     IN amt DECIMAL(10, 2),
+     IN curr VARCHAR(10),
+     IN trip INT
+ )
+ BEGIN
+     INSERT INTO Expense (expense_date, expense_category, expense_description, amount, currency, trip_id)
+     VALUES (exp_date, exp_category, exp_description, amt, curr, trip);
+ END //
+ DELIMITER ;
 
--- -- Procedure to delete an expense by expense ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteExpenseById(IN exp_id INT)
--- BEGIN
---     DELETE FROM Expense WHERE expense_id = exp_id;
--- END //
--- DELIMITER ;
+ -- Procedure to delete an expense by expense ID
+ DELIMITER //
+ CREATE PROCEDURE DeleteExpenseById(IN exp_id INT)
+ BEGIN
+     DELETE FROM Expense WHERE expense_id = exp_id;
+ END //
+ DELIMITER ;
 
 
 
