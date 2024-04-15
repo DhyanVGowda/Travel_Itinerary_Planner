@@ -6,6 +6,7 @@ from streamlit_option_menu import option_menu
 
 from rest_api import *
 
+
 def signup_user(signup_data):
     response = requests.post(f"{FLASK_SERVER_URL}/signup", json=signup_data)
     return response
@@ -34,7 +35,7 @@ def fetch_trips(email):
             trips_df_1['Start Date'] = trips_df['start_date'].dt.strftime('%Y-%b-%d')
             trips_df_1['End Date'] = trips_df['end_date'].dt.strftime('%Y-%b-%d')
             return trips_df_1, None  # Convert the list of dictionaries to a DataFrame
-        else :
+        else:
             return pd.DataFrame(), "No Trips found."
     else:
         return pd.DataFrame(), "Failed to fetch trips."  # Return an empty DataFrame and an error message
@@ -248,6 +249,176 @@ def show_user_info():
         st.sidebar.write("Please log in to see traveler information.")
 
 
+import requests
+import streamlit as st
+import time
+
+
+def add_hotel_page(trip_ids):
+    destinations_df, error = get_destinations(trip_ids)
+    if not destinations_df.empty:
+        with st.form("add_hotel_form", clear_on_submit=True):
+            st.subheader("Add Hotel Accommodation")
+            destination_options = list(destinations_df['destination_id'])
+            selected_destination_id = st.selectbox('Select Destination ID', destination_options)
+            accommodation_name = st.text_input('Accommodation Name')
+            cost_per_night = st.number_input('Cost Per Night', step=100)
+            telephone_number = st.text_input('Telephone Number')
+            checkin_date = st.date_input('Check-in Date', None)
+            checkout_date = st.date_input('Check-out Date', None)
+            street_name = st.text_input('Street Name')
+            street_number = st.text_input('Street Number')
+            city = st.text_input('City')
+            state = st.text_input('State')
+            zipcode = st.text_input('Zip Code')
+            number_of_rooms = st.number_input('Number of Rooms', min_value=1, value=1)
+            meal_included = st.checkbox('Meal Included?')
+            star_rating = st.selectbox('Star Rating', ['1', '2', '3', '4', '5'])
+            submit_button = st.form_submit_button('Add Hotel')
+
+            if submit_button:
+                if not accommodation_name or not cost_per_night or not telephone_number:
+                    st.error('Accommodation name, cost per night, and telephone number are required.')
+                else:
+                    hotel_data = {
+                        "accommodation_name": accommodation_name,
+                        "cost_per_night": cost_per_night,
+                        "telephone_number": telephone_number,
+                        "checkin_date": checkin_date.isoformat() if checkin_date else None,
+                        "checkout_date": checkout_date.isoformat() if checkout_date else None,
+                        "street_name": street_name,
+                        "street_number": street_number,
+                        "city": city,
+                        "state": state,
+                        "zipcode": zipcode,
+                        "destination_id": selected_destination_id,
+                        "number_of_rooms": number_of_rooms,
+                        "meal": meal_included,
+                        "star_rating": star_rating
+                    }
+                    response = add_hotel(hotel_data)
+                    if response.status_code == 201:
+                        st.success('Hotel added successfully.')
+                        time.sleep(1)
+                        st.experimental_rerun()
+                    else:
+                        st.error('Failed to add hotel.')
+    else:
+        st.error('Add destinations.')
+
+
+def add_homestay_page(trip_ids):
+    destinations_df, error = get_destinations(trip_ids)
+    if not destinations_df.empty:
+        with st.form("add_homestay_form", clear_on_submit=True):
+            st.subheader("Add Homestay Accommodation")
+            destination_options = list(destinations_df['destination_id'])
+            selected_destination_id = st.selectbox('Select Destination ID', destination_options)
+            accommodation_name = st.text_input('Accommodation Name')
+            cost_per_night = st.number_input('Cost Per Night (dollars)', step=100)
+            telephone_number = st.text_input('Telephone Number')
+            checkin_date = st.date_input('Check-in Date', None)
+            checkout_date = st.date_input('Check-out Date', None)
+            street_name = st.text_input('Street Name')
+            street_number = st.text_input('Street Number')
+            city = st.text_input('City')
+            state = st.text_input('State')
+            zipcode = st.text_input('Zip Code')
+            number_of_rooms = st.number_input('Number of Rooms', min_value=1, value=1)
+            is_cook_available = st.checkbox('Is Cook Available?')
+            stay_type = st.selectbox('Stay Type', ['Private', 'Shared'])
+            is_pet_allowed = st.checkbox('Is Pet Allowed?')
+            submit_button = st.form_submit_button('Add Homestay')
+
+            if submit_button:
+                if not accommodation_name or not cost_per_night or not telephone_number:
+                    st.error('Accommodation name, cost per night, and telephone number are required.')
+                else:
+                    homestay_data = {
+                        "accommodation_name": accommodation_name,
+                        "cost_per_night": cost_per_night,
+                        "telephone_number": telephone_number,
+                        "checkin_date": checkin_date.isoformat() if checkin_date else None,
+                        "checkout_date": checkout_date.isoformat() if checkout_date else None,
+                        "street_name": street_name,
+                        "street_number": street_number,
+                        "city": city,
+                        "state": state,
+                        "zipcode": zipcode,
+                        "destination_id": selected_destination_id,
+                        "number_of_rooms": number_of_rooms,
+                        "is_cook_available": is_cook_available,
+                        "stay_type": stay_type,
+                        "is_pet_allowed": is_pet_allowed
+                    }
+                    response = add_homestay(homestay_data)
+                    if response.status_code == 201:
+                        st.success('Homestay added successfully.')
+                        time.sleep(1)
+                        st.experimental_rerun()
+                    else:
+                        st.error('Failed to add homestay.')
+    else:
+        st.error('Add destinations.')
+
+
+def add_hostel_page(trip_ids):
+    destinations_df, error = get_destinations(trip_ids)
+    if not destinations_df.empty:
+        with st.form("add_hostel_form", clear_on_submit=True):
+            st.subheader("Add Hostel Accommodation")
+            destination_options = list(destinations_df['destination_id'])
+            selected_destination_id = st.selectbox('Select Destination ID', destination_options)
+            accommodation_name = st.text_input('Accommodation Name')
+            cost_per_night = st.number_input('Cost Per Night', step=100)
+            telephone_number = st.text_input('Telephone Number')
+            checkin_date = st.date_input('Check-in Date', None)
+            checkout_date = st.date_input('Check-out Date', None)
+            street_name = st.text_input('Street Name')
+            street_number = st.text_input('Street Number')
+            city = st.text_input('City')
+            state = st.text_input('State')
+            zipcode = st.text_input('Zip Code')
+            number_of_rooms = st.number_input('Number of Rooms', min_value=1, value=1)
+            meal_included = st.checkbox('Meal Included?')
+            bath_type = st.selectbox('Bath Type', ['Private', 'Shared'])
+            wifi_available = st.checkbox('WiFi Available?')
+            mixed_dorm = st.checkbox('Mixed Dorm?')
+            submit_button = st.form_submit_button('Add Hostel')
+
+            if submit_button:
+                if not accommodation_name or not cost_per_night or not telephone_number:
+                    st.error('Accommodation name, cost per night, and telephone number are required.')
+                else:
+                    hostel_data = {
+                        "accommodation_name": accommodation_name,
+                        "cost_per_night": cost_per_night,
+                        "telephone_number": telephone_number,
+                        "checkin_date": checkin_date.isoformat() if checkin_date else None,
+                        "checkout_date": checkout_date.isoformat() if checkout_date else None,
+                        "street_name": street_name,
+                        "street_number": street_number,
+                        "city": city,
+                        "state": state,
+                        "zipcode": zipcode,
+                        "destination_id": selected_destination_id,
+                        "number_of_rooms": number_of_rooms,
+                        "meal": meal_included,
+                        "bath_type": bath_type,
+                        "wifi": wifi_available,
+                        "mixed_dorm": mixed_dorm
+                    }
+                    response = add_hostel(hostel_data)
+                    if response.status_code == 201:
+                        st.success('Hostel added successfully.')
+                        time.sleep(1)
+                        st.experimental_rerun()
+                    else:
+                        st.error('Failed to add hostel.')
+    else:
+        st.error('Add destinations.')
+
+
 def display_destinations():
     st.subheader("Destinations")
 
@@ -274,11 +445,42 @@ def display_destinations():
                             st.error('Failed to delete the Destination.' + response.json().get('error'))
             else:
                 st.error(error or "No destinations found.")
+
+            with st.form("add_destination_form", clear_on_submit=True):
+                st.subheader("Add Destination to Trip")
+                trip_options = list(trips_df['Trip Id'])
+                selected_trip_id = st.selectbox('Select Trip ID', trip_options)
+                destination_name = st.text_input('Destination Name')
+                country = st.text_input('Country')
+                arrival_date = st.date_input('Arrival Date', None)
+                departure_date = st.date_input('Departure Date', None)
+                transport_mode = st.text_input('Transport Mode')
+                travel_duration = st.text_input('Travel Duration')
+                submit_button = st.form_submit_button('Add Destination')
+                if submit_button:
+                    if not destination_name or not country:
+                        st.error('Destination name and country are required.')
+                    else:
+                        destination_data = {
+                            "trip_id": selected_trip_id,
+                            "destination_name": destination_name,
+                            "country": country,
+                            "arrival_date": arrival_date.isoformat() if arrival_date else None,
+                            "departure_date": departure_date.isoformat() if departure_date else None,
+                            "transport_mode": transport_mode,
+                            "travel_duration": travel_duration
+                        }
+                        response = add_destination_to_trip(destination_data)
+                        if response.status_code == 201:
+                            st.success('Destination added to trip successfully.')
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error('Failed to add destination to trip.')
         else:
             st.error("No trips found to display destinations.")
     else:
         st.error("Please log in to view destinations.")
-
 
 
 def display_activities():
@@ -297,6 +499,7 @@ def display_activities():
     else:
         st.error("Please log in to view Activities Data.")
     print(1)
+
 
 def display_accommodations():
     st.subheader("User's Accomodations")
@@ -324,6 +527,8 @@ def display_accommodations():
                                 st.error('Failed to delete the Homestay.')
                 else:
                     st.error(error or "No homestay Accomodation found.")
+
+                add_homestay_page(trip_ids)
             else:
                 st.error("No trips found to display.")
         else:
@@ -350,6 +555,7 @@ def display_accommodations():
                                 st.error('Failed to delete the Hostel.')
                 else:
                     st.error(error or "No Hostel Accomodation found.")
+                add_hostel_page(trip_ids)
             else:
                 st.error("No trips found to display.")
         else:
@@ -375,8 +581,11 @@ def display_accommodations():
                                 st.experimental_rerun()
                             else:
                                 st.error('Failed to delete the Hotel.')
+
                 else:
                     st.error(error or "No Hotel Accomodation found.")
+
+                add_hotel_page(trip_ids)
             else:
                 st.error("No trips found to display.")
         else:

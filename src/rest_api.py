@@ -103,3 +103,19 @@ def delete_hotel(accomodation_id):
     # Make a DELETE request to the delete trip API endpoint
     response = requests.delete(f"{FLASK_SERVER_URL}/deleteHotel/{accomodation_id}")
     return response
+
+def add_destination_to_trip(destination_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addDestinationToTrip", json=destination_data)
+    return response
+
+def add_homestay(homestay_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addHomeStay", json=homestay_data)
+    return response
+
+def add_hotel(hotel_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addHotel", json=hotel_data)
+    return response
+
+def add_hostel(hostel_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addHostel", json=hostel_data)
+    return response
