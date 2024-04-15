@@ -168,3 +168,24 @@ def create_expense(expense_data):
 def delete_expense(expense_id):
     response = requests.delete(f"{FLASK_SERVER_URL}/deleteExpense/{expense_id}")
     return response
+
+
+def fetch_essential_items(trip_ids):
+    if not isinstance(trip_ids, list):
+        trip_ids = [trip_ids]
+
+    response = requests.post(f"{FLASK_SERVER_URL}/getItemsByTripIds", json={"trip_ids": trip_ids})
+    if response.status_code == 200:
+        return response.json()['items'], None
+    else:
+        return [], "Failed to fetch essential items."
+
+
+def create_essential_items(essential_items_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/addItemToTrip", json=essential_items_data)
+    return response
+
+
+def delete_essential_items(trip_id, essential_items_id):
+    response = requests.delete(f"{FLASK_SERVER_URL}/deleteItem/{trip_id}/{essential_items_id}")
+    return response

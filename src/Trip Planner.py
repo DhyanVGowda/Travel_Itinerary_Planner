@@ -656,6 +656,7 @@ def display_expenses():
     else:
         st.error("Please log in to view and manage expenses.")
 
+
 def main():
     st.title('Travel Itinerary App')
 
@@ -670,8 +671,10 @@ def main():
         options.remove("Login")
         icons.remove("person-plus")
         icons.remove("door-open")
-        options += ["Trips", "Destinations", "Activities", "Accommodations", "Expenses & Essential Items", "Logout"]
-        icons += ["map", "globe", "biking", "hotel", "credit-card","box-arrow-right"]
+        options = ["Home", "Your Trips", "Destinations", "Activities", "Accommodations", "Expenses",
+                   "Essential Items", "Logout"]
+        icons = ["house", "map", "globe", "building", "compass", "credit-card", "list",
+                 "box-arrow-right"]
 
     selected = option_menu("Main Menu", options, icons=icons, menu_icon="cast", default_index=0,
                            orientation="horizontal")
@@ -684,7 +687,7 @@ def main():
         signup_page()
     elif selected == "Login":
         login_page()
-    elif selected == "Trips" and 'user_email' in st.session_state:
+    elif selected == "Your Trips" and 'user_email' in st.session_state:
         display_trips()
     elif selected == "Destinations" and 'user_email' in st.session_state:
         display_destinations()
@@ -692,8 +695,10 @@ def main():
         display_activities()
     elif selected == "Accommodations" and 'user_email' in st.session_state:
         display_accommodations()
-    elif selected == "Expenses & Essential Items" and 'user_email' in st.session_state:
+    elif selected == "Expenses" and 'user_email' in st.session_state:
         display_expenses()
+    elif selected == "Essential Items" and 'user_email' in st.session_state:
+        display_essential_items()
     elif selected == "Logout":
         for key in ['user_email', 'user_info']:
             if key in st.session_state:
@@ -798,7 +803,7 @@ def add_adventure_sport_activity_form(destination_options):
 def add_other_activity_form(destination_options):
     with st.form("add_other_activity_form", clear_on_submit=True):
         st.subheader("Add Activity")
-        destination_id = st.selectbox('Select Destination ID',  destination_options)
+        destination_id = st.selectbox('Select Destination ID', destination_options)
         activity_location = st.text_input('Activity Location')
         activity_description = st.text_area('Activity Description')
         activity_date = st.date_input('Activity Date', None)
@@ -824,6 +829,53 @@ def add_other_activity_form(destination_options):
                 st.experimental_rerun()
             else:
                 st.error('Failed to add activity.')
+
+def display_essential_items():
+    st.subheader("Essential Items")
+    if 'user_email' in st.session_state:
+        trips_df, error = fetch_trips(st.session_state['user_email'])
+        if not trips_df.empty:
+            trip_options = list(trips_df['Trip Id'])
+            selected_trip_id = st.selectbox('Select a Trip ID to manage essential items', trip_options)
+
+            essential_items, error = fetch_essential_items(selected_trip_id)
+            if essential_items:
+                items_df = pd.DataFrame(essential_items)
+                st.dataframe(items_df)
+
+
+                with st.expander("Delete Essential Item"):
+                    item_ids = items_df['item_id'].tolist()
+                    selected_item_id = st.selectbox("Select an Item ID to delete", item_ids)
+                    if st.button('Delete Item'):
+                        response = delete_essential_items(selected_trip_id, selected_item_id)
+                        if response.status_code == 200:
+                            st.success("Item deleted successfully.")
+                            st.experimental_rerun()
+                        else:
+                            st.error(f"Failed to delete item. Error: {response.json().get('error')}")
+            else:
+                st.error(error or "No essential items found for the selected trip.")
+
+            with st.expander("Add Essential Item"):
+                with st.form("add_essential_item_form", clear_on_submit=True):
+                    item_name = st.text_input("Item Name")
+                    submit_button = st.form_submit_button("Add Item")
+
+                    if submit_button:
+                        essential_item_data = {
+                            "item_name": item_name,
+                            "trip_id": selected_trip_id
+                        }
+                        response = create_essential_items(essential_item_data)
+                        if response.status_code == 201:
+                            st.success("Item added successfully.")
+                            st.experimental_rerun()
+                        else:
+                            st.error(f"Failed to add item. Error: {response.json().get('error')}")
+
+    else:
+        st.error("Please log in to view and manage essential items.")
 
 
 if __name__ == "__main__":
