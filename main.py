@@ -117,6 +117,40 @@ def create_trip_details():
         return jsonify({'error': 'Failed to add trip and traveler\'s trip plan'}), 500
 
 
+@app.route('/addDestinationToTrip', methods=['POST'])
+def add_destination_to_trip():
+    data = request.get_json()
+    trip_id = data.get('trip_id')
+    dest_name = data.get('destination_name')
+    country = data.get('country')
+    arrival_date = data.get('arrival_date')
+    departure_date = data.get('departure_date')
+    transport_mode = data.get('transport_mode')
+    travel_duration = data.get('travel_duration')
+
+    try:
+        with connection.cursor() as cursor:
+            connection.begin()
+
+            # Create a new destination entry
+            cursor.callproc('AddDestination', [dest_name, country, arrival_date, departure_date])
+
+            # Get the destination ID
+            cursor.execute("SELECT LAST_INSERT_ID()")
+            dest_id = cursor.fetchone()[0]
+
+            # Add the trip's destination
+            cursor.callproc('AddTripDestination', [dest_id, trip_id, transport_mode, travel_duration])
+
+            connection.commit()
+
+            return jsonify({'message': 'Destination added to trip successfully'}), 201
+    except Error as e:
+        print("Failed to add destination to trip:", e)
+        connection.rollback()
+        return jsonify({'error': 'Failed to add destination to trip'}), 500
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
