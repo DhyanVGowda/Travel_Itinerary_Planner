@@ -1,15 +1,15 @@
 -- Data for Traveller table
 INSERT INTO Traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number, street_name, street_number, city, state, zipcode) VALUES
-('john.doe@email.com', '1234567890', 'John', 'Doe', 'Male', '1985-04-03', 101, 'Main St', 500, 'San Francisco', 'California', '94102'),
+('john.doe@email.com', '1234567870', 'John', 'Doe', 'Male', '1985-04-03', 101, 'Main St', 500, 'San Francisco', 'California', '94102'),
 ('jane.smith@email.com', '0987654321', 'Jane', 'Smith', 'Female', '1990-08-10', 202, 'Oak Ave', 250, 'New York', 'New York', '10001'),
 ('andy.blake@email.com', '5556667777', 'Andy', 'Blake', 'Male', '1979-12-22', 303, 'Second St', 1200, 'Las Vegas', 'Nevada', '88901'),
 ('lisa.ray@email.com', '2223334444', 'Lisa', 'Ray', 'Female', '1995-07-15', 404, 'Elm St', 800, 'Chicago', 'Illinois', '60601'),
 ('tom.cruise@email.com', '6667778888', 'Tom', 'Cruise', 'Male', '1980-03-14', 505, 'Pine St', 300, 'Miami', 'Florida', '33101'),
-('ellen.page@email.com', '7778889999', 'Ellen', 'Page', 'Female', '1987-11-11', 606, 'Maple Ave', 700, 'Seattle', 'Washington', '98101'),
+('ellen.page@email.com', '7778869999', 'Ellen', 'Page', 'Female', '1987-11-11', 606, 'Maple Ave', 700, 'Seattle', 'Washington', '98101'),
 ('frank.bean@email.com', '8889990000', 'Frank', 'Bean', 'Male', '1982-05-24', 707, 'Sunset Blvd', 200, 'Los Angeles', 'California', '90001'),
 ('nancy.grey@email.com', '9990001111', 'Nancy', 'Grey', 'Female', '1993-09-05', 808, 'Broadway', 900, 'Boston', 'Massachusetts', '02101'),
 ('bob.fox@email.com', '0001112222', 'Bob', 'Fox', 'Male', '1975-02-17', 909, 'Lakeview Ave', 450, 'Denver', 'Colorado', '80201'),
-('sara.conor@email.com', '1112223333', 'Sara', 'Conor', 'Female', '1988-06-30', 1010, 'Hilltop Rd', 550, 'Atlanta', 'Georgia', '30301'),
+('sara.conor@email.com', '1112223433', 'Sara', 'Conor', 'Female', '1988-06-30', 1010, 'Hilltop Rd', 550, 'Atlanta', 'Georgia', '30301'),
 ('mike.stone@email.com', '3334445555', 'Mike', 'Stone', 'Male', '1992-01-23', 1111, 'Orchard Rd', 650, 'Dallas', 'Texas', '75201');
 
 -- Data for Trip table
@@ -164,7 +164,7 @@ INSERT INTO Traveller_Plans_Trip (email_id, trip_id) VALUES
 
 -- Data for Trip_Requires_Item table
 INSERT INTO Trip_Requires_Item (trip_id, item_id) VALUES
-(1, 1),  -- Waterproof Jacket for Yosemite
+(1, 4),  
 (2, 2),  -- Travel Adapter for Liberty
 (3, 4),  -- Hiking Boots for Grand Canyon
 (4, 5),  -- First Aid Kit for Disney World
@@ -178,17 +178,17 @@ INSERT INTO Trip_Requires_Item (trip_id, item_id) VALUES
 
 -- Data for Trip_Has_Destination table
 INSERT INTO Trip_Has_Destination (destination_id, trip_id, transportation_mode, travel_duration) VALUES
-(1, 1, 'Car', '02:00:00'),   -- Yosemite
-(2, 2, 'Ferry', '00:30:00'),  -- Statue of Liberty
-(3, 3, 'Helicopter', '00:15:00'), -- Grand Canyon
-(4, 4, 'Bus', '01:00:00'),    -- Disney World Orlando
-(5, 5, 'Tram', '00:20:00'),   -- Universal Studios
-(6, 6, 'Boat', '00:30:00'),   -- Niagara Falls
-(7, 7, 'Metro', '00:10:00'),  -- Eiffel Tower
-(8, 8, 'Walk', '03:00:00'),   -- Great Wall of China
-(9, 9, '4x4', '04:00:00'),    -- Sahara Desert
-(10, 10, 'Bus', '02:00:00'),  -- Kyoto Temples
-(11, 11, 'Ferry', '00:45:00'); -- Sydney Opera House
+(1, 6, 'Car', '02:00:00'),   
+(2, 4, 'Ferry', '00:30:00'),  
+(3, 5, 'Helicopter', '00:15:00'), 
+(4, 3, 'Bus', '01:00:00'),    
+(5, 8, 'Tram', '00:20:00'),   
+(6, 6, 'Boat', '00:30:00'),   
+(7, 7, 'Metro', '00:10:00'),  
+(8, 8, 'Walk', '03:00:00'),   
+(9, 9, '4x4', '04:00:00'),    
+(10, 10, 'Bus', '02:00:00'),  
+(11, 11, 'Ferry', '00:45:00'); 
 
 
 
