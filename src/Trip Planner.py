@@ -6,7 +6,6 @@ from streamlit_option_menu import option_menu
 
 from rest_api import *
 
-
 def signup_user(signup_data):
     response = requests.post(f"{FLASK_SERVER_URL}/signup", json=signup_data)
     return response
@@ -314,6 +313,18 @@ def display_accommodations():
                     st.dataframe(homestay_df)
                 else:
                     st.error(error or "No homestay Accomodation found.")
+
+                with st.expander("Delete Homestay"):
+                    trip_options = list(homestay_df[''])
+                    selected_homestay_id = st.selectbox('Select Homestay ID', trip_options)
+                    if st.button('Delete Homestay'):
+                        response = delete_homestay(selected_homestay_id)
+                        if response.status_code == 200:
+                            st.success(f"Homestay deleted successfully.")
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error('Failed to delete the Homestay.')
             else:
                 st.error("No trips found to display.")
         else:
