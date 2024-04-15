@@ -100,6 +100,28 @@ def get_expenses():
         cursor.close()
 
 
+@app.route('/addExpense', methods=['POST'])
+def add_expense():
+    data = request.json
+    exp_date = check_empty(data['expense_date'])
+    exp_category = check_empty(data['expense_category'])
+    exp_description = check_empty(data['expense_description'])
+    amt = data['amount']
+    curr = check_empty(data['currency'])
+    trip = data['trip_id']
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('AddExpense', (exp_date, exp_category, exp_description, amt, curr, trip))
+        # Commit the transaction
+        connection.commit()
+        return jsonify({'message': 'Expense added successfully'}), 201
+    except Error as e:
+        print("Failed to add an expense: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 def check_empty(value):
     if value == '':
         return None
