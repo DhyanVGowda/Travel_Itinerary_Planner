@@ -27,16 +27,19 @@ def fetch_trips(email):
         # where 'trips' is a list of dictionaries representing each trip.
         trips_data = response.json().get("trips", [])  # Default to an empty list if "trips" key is absent
         trips_df = pd.DataFrame(trips_data)
-        trips_df['start_date'] = pd.to_datetime(trips_df['start_date'], format='mixed')
-        trips_df['end_date'] = pd.to_datetime(trips_df['end_date'], format='mixed')
+        if not trips_df.empty:
+            trips_df['start_date'] = pd.to_datetime(trips_df['start_date'], format='mixed')
+            trips_df['end_date'] = pd.to_datetime(trips_df['end_date'], format='mixed')
 
-        trips_df_1 = pd.DataFrame()
-        trips_df_1['Trip Id'] = trips_df['trip_id']
-        trips_df_1['Trip Name'] = trips_df['trip_name']
-        trips_df_1['Trip Status'] = trips_df['trip_status']
-        trips_df_1['Start Date'] = trips_df['start_date'].dt.strftime('%Y-%b-%d')
-        trips_df_1['End Date'] = trips_df['end_date'].dt.strftime('%Y-%b-%d')
-        return trips_df_1, None  # Convert the list of dictionaries to a DataFrame
+            trips_df_1 = pd.DataFrame()
+            trips_df_1['Trip Id'] = trips_df['trip_id']
+            trips_df_1['Trip Name'] = trips_df['trip_name']
+            trips_df_1['Trip Status'] = trips_df['trip_status']
+            trips_df_1['Start Date'] = trips_df['start_date'].dt.strftime('%Y-%b-%d')
+            trips_df_1['End Date'] = trips_df['end_date'].dt.strftime('%Y-%b-%d')
+            return trips_df_1, None  # Convert the list of dictionaries to a DataFrame
+        else :
+            return pd.DataFrame(), "No Trips found."
     else:
         return pd.DataFrame(), "Failed to fetch trips."  # Return an empty DataFrame and an error message
 
@@ -261,10 +264,12 @@ def display_destinations():
                 st.dataframe(destinations_df)
 
                 with st.expander("Delete Destinations"):
+                    trip_options = list(destinations_df['trip_id'])
+                    selected_trip_id = st.selectbox('Select Trip Id', trip_options)
                     destinations_options = list(destinations_df['destination_id'])
                     selected_destn_id = st.selectbox('Select Destination Id', destinations_options)
                     if st.button('Delete Destination'):
-                        response = delete_destination(selected_destn_id)
+                        response = delete_destination(selected_trip_id, selected_destn_id)
                         if response.status_code == 200:
                             st.success(f"Destination deleted successfully.")
                             time.sleep(1)
