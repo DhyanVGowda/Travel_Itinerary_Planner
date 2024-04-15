@@ -29,3 +29,4 @@ replay_pid*
 src/__pycache__
 .DS_Store
 src/__pycache__/*
+/src/__pycache__
