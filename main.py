@@ -320,16 +320,16 @@ def get_activity():
         cursor.close()
 
 
-@app.route('/deleteDestination/<int:dest_id>', methods=['DELETE'])
-def delete_destination(dest_id):
+@app.route('/deleteDestination/<int:trip_id>/<int:dest_id>', methods=['DELETE'])
+def delete_destination(trip_id, dest_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteDestinationById', [dest_id])
+        cursor.callproc('DeleteTripDestination', [dest_id, trip_id])
         connection.commit()
-        return jsonify({'message': 'Destination deleted successfully'}), 200
+        return jsonify({'message': 'Destination removed successfully'}), 200
     except Error as e:
         connection.rollback()
-        return jsonify({'error': 'Failed to delete destination: ' + str(e)}), 500
+        return jsonify({'error': 'Failed to remove destination: ' + str(e)}), 500
     finally:
         cursor.close()
 
@@ -338,7 +338,7 @@ def delete_destination(dest_id):
 def delete_activity(activity_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteActivityById', [activity_id])
+        cursor.callproc('DeleteActivityByIdDeleteActivityById', [activity_id])
         connection.commit()
         return jsonify({'message': 'Activity deleted successfully'}), 200
     except Error as e:
@@ -390,10 +390,9 @@ def delete_hostel(accom_id):
         cursor.close()
 
 
-
 if __name__ == '__main__':
     username = "root"
-    password = "anshuman"
+    password = "parrvaltd118"
     connection = connect_to_database(username, password)
     if connection is not None:
         app.run(debug=True)
