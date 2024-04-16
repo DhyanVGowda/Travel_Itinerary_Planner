@@ -189,3 +189,9 @@ def create_essential_items(essential_items_data):
 def delete_essential_items(trip_id, essential_items_id):
     response = requests.delete(f"{FLASK_SERVER_URL}/deleteItem/{trip_id}/{essential_items_id}")
     return response
+
+def update_trip(trip_id, trip_update_data):
+    # You need to implement this function according to your API's requirements
+    response = requests.put(f"{FLASK_SERVER_URL}/updateTrip/{trip_id}", json=trip_update_data)
+    return response.ok
+

@@ -1,6 +1,8 @@
 import time
 from io import BytesIO
 
+import numpy as np
+import pandas as pd
 import streamlit as st
 from streamlit_option_menu import option_menu
 
@@ -103,22 +105,6 @@ def login_page():
             else:
                 st.error('Login failed. Incorrect email or password.')
 
-
-def update_trip(trip_update_data):
-    # You need to implement this function according to your API's requirements
-    response = requests.post(f"{FLASK_SERVER_URL}/updateTrips", json=trip_update_data)
-    return response.ok
-
-
-def to_excel(df):
-    output = BytesIO()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, index=False, sheet_name='Sheet1')
-    writer.save()
-    processed_data = output.getvalue()
-    return processed_data
-
-
 def display_trips():
     st.subheader("Your Trips")
 
@@ -166,6 +152,45 @@ def display_trips():
                     else:
                         st.error('Failed to delete the trip.')
 
+            with st.expander("Update Trip"):
+                selected_trip_id = st.selectbox('Select Trip ID to update', list(trips_df['Trip Id']))
+                selected_trip = trips_df[trips_df['Trip Id'] == selected_trip_id].iloc[0]
+
+                with st.form("update_trip_form", clear_on_submit=True):
+                    st.subheader('Update Trip')
+                    st.text_input('Trip ID', value=selected_trip['Trip Id'], key='trip_id', disabled=True)
+                    trip_name = st.text_input('Trip Name', value=selected_trip['Trip Name'], key='trip_name')
+                    if not pd.isna(selected_trip['Start Date']):
+                        start_date = st.date_input('Start Date', value=pd.to_datetime(selected_trip['Start Date']),
+                                               key='start_date')
+                    else :
+                        start_date = st.date_input('Start Date',key='start_date')
+                    if not pd.isna(selected_trip['End Date']):
+                        end_date = st.date_input('End Date', value=pd.to_datetime(selected_trip['End Date']),
+                                                   key='end_date')
+                    else:
+                        end_date = st.date_input('End Date', key='end_date')
+                    status = st.selectbox('Status',
+                                          ['Planning In Progress', 'Planned Successfully', 'Ongoing', 'Completed'],
+                                          index=['Planning In Progress', 'Planned Successfully', 'Ongoing',
+                                                 'Completed'].index(selected_trip['Trip Status']), key='trip_status')
+                    submit_update_trip = st.form_submit_button('Update Trip')
+
+                    if submit_update_trip:
+                        update_trip_data = {
+                            'trip_name': trip_name,
+                            'start_date': start_date.isoformat() if start_date else None,
+                            'end_date': end_date.isoformat() if end_date else None,
+                            'trip_status': status
+                        }
+                        response = update_trip(selected_trip_id, update_trip_data)
+                        if response:
+                            st.success(f"Trip with ID {selected_trip_id} updated successfully.")
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error(f"Failed to update trip with ID {selected_trip_id}.")
+
         else:
             st.error(error or "No trips found.")
 
@@ -187,7 +212,7 @@ def display_trips():
                     'trip_name': new_trip_name,
                     'start_date': new_start_date.isoformat() if new_start_date else None,
                     'end_date': new_end_date.isoformat() if new_end_date else None,
-                    'status': new_status
+                    'trip_status': new_status
                 }
                 response = add_trip(new_trip_data)  # Make sure this function is implemented to send the POST request
                 if response.status_code == 201:
