@@ -379,3 +379,25 @@ BEGIN
 END//
 
 DELIMITER ;
+
+-- Procedure to update traveller table
+DELIMITER //
+CREATE PROCEDURE UpdateTraveller(IN p_email_id VARCHAR(255), IN p_first_name VARCHAR(100), IN p_last_name VARCHAR(100),
+                                IN p_gender VARCHAR(10), IN p_date_of_birth DATE, IN p_unit_number INT,
+                                IN p_street_name VARCHAR(255), IN p_street_number INT, IN p_city VARCHAR(100),
+                                IN p_state VARCHAR(100), IN p_zipcode VARCHAR(20))
+BEGIN
+    UPDATE Traveller
+    SET first_name = p_first_name,
+        last_name = p_last_name,
+        gender = p_gender,
+        date_of_birth = p_date_of_birth,
+        unit_number = p_unit_number,
+        street_name = p_street_name,
+        street_number = p_street_number,
+        city = p_city,
+        state = p_state,
+        zipcode = p_zipcode
+    WHERE email_id = p_email_id;
+END //
+DELIMITER ;

@@ -743,6 +743,33 @@ def update_trip(trip_id):
         cursor.close()
 
 
+@app.route('/updateTraveller/<string:email_id>', methods=['PUT'])
+def update_traveller(email_id):
+    data = request.json
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    gender = data.get('gender')
+    date_of_birth = data.get('date_of_birth')
+    unit_number = data.get('unit_number')
+    street_name = data.get('street_name')
+    street_number = data.get('street_number')
+    city = data.get('city')
+    state = data.get('state')
+    zipcode = data.get('zipcode')
+
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('UpdateTraveller', (email_id, first_name, last_name, gender, date_of_birth, unit_number,
+                                            street_name, street_number, city, state, zipcode))
+        connection.commit()
+        return jsonify({'message': 'Traveller updated successfully'}), 200
+    except Error as e:
+        print("Failed to update traveller: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 if __name__ == '__main__':
     with open('configs.json', 'r') as file:
         configs = json.load(file)
