@@ -1,4 +1,6 @@
 from decimal import Decimal
+from time import time
+
 from flask import Flask, Response, jsonify, request
 import json
 import datetime
@@ -16,9 +18,14 @@ class CustomEncoder(json.JSONEncoder):
         elif isinstance(obj, datetime.time):
             return obj.strftime('%H:%M:%S')
         elif isinstance(obj, datetime.timedelta):
-            return obj.total_seconds()
+            total_seconds = obj.total_seconds()
+            hours, remainder = divmod(total_seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            return f"{int(hours)}:{int(minutes)}:{int(seconds)}"
         elif isinstance(obj, Decimal):
             return str(obj)
+        elif isinstance(obj, time):
+            return obj.strftime('%H:%M:%S')
         return super().default(obj)
 
 
