@@ -195,3 +195,12 @@ def update_trip(trip_id, trip_update_data):
     response = requests.put(f"{FLASK_SERVER_URL}/updateTrip/{trip_id}", json=trip_update_data)
     return response.ok
 
+def update_user_info(user_info, email_id):
+    # You need to implement this function according to your API's requirements
+    response = requests.put(f"{FLASK_SERVER_URL}/updateTraveller/{email_id}", json=user_info)
+    return response.ok
+
+def update_destination_info(destination_update_data):
+    # You need to implement this function according to your API's requirements
+    response = requests.put(f"{FLASK_SERVER_URL}/updateDestination/{destination_update_data['destination_id']}", json=destination_update_data)
+    return response.ok

@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from io import BytesIO
 
 import numpy as np
@@ -274,6 +275,55 @@ def show_user_info():
         st.sidebar.write("Please log in to see traveler information.")
 
 
+def edit_user_info(user_info):
+    with st.sidebar:
+        with st.expander('Update Traveller Info'):
+            st.subheader("Update User Info")
+            # Create input fields for editable fields
+            new_first_name = st.text_input("First Name", value=user_info[2])
+            new_last_name = st.text_input("Last Name", value=user_info[3])
+            new_address = st.text_input("New Address", value=user_info[7])
+            new_city = st.text_input("New City", value=user_info[9])
+            new_state = st.text_input("New State", value=user_info[10])
+
+            # Button to submit changes
+            if st.button("Submit Changes"):
+                # Construct updated user info
+
+                updated_user_info = user_info.copy()
+                updated_user_info[2] = new_first_name
+                updated_user_info[3] = new_last_name
+                updated_user_info[7] = new_address
+                updated_user_info[9] = new_city
+                updated_user_info[10] = new_state
+
+                # Call update_user_info function
+                user_email = st.session_state['user_email']
+                user_update_request = construct_user_update_request(updated_user_info, user_email)
+
+                response = update_user_info(user_update_request, st.session_state['user_email'])
+                if response:
+                    st.success("User information updated successfully.")
+                else:
+                    st.error("Failed to update user information.")
+
+
+def construct_user_update_request(updated_user_info, user_email):
+
+    user_update_request = {
+        "first_name": updated_user_info[2],
+        "last_name": updated_user_info[3],
+        "gender": updated_user_info[4],  # Assuming gender is at index 4 in user_info
+        "unit_number": updated_user_info[6],  # Assuming unit number is at index 7 in user_info
+        "street_name": updated_user_info[7],  # Assuming street name is at index 8 in user_info
+        "street_number": updated_user_info[8],  # Assuming street number is at index 6 in user_info
+        "city": updated_user_info[9],  # Assuming city is at index 9 in user_info
+        "state": updated_user_info[10],  # Assuming state is at index 10 in user_info
+        "zipcode": updated_user_info[11],  # Assuming zipcode is at index 11 in user_info
+        "email": user_email
+    }
+    return user_update_request
+
 def add_hotel_page(trip_ids):
     destinations_df, error = get_destinations(trip_ids)
     if not destinations_df.empty:
@@ -452,24 +502,32 @@ def display_destinations():
 
                 with st.expander("Delete Destinations"):
                     trip_options = list(destinations_df['trip_id'])
-                    selected_trip_id = st.selectbox('Select Trip Id', trip_options)
+                    selected_trip_id_delete = st.selectbox('Select Trip Id to delete', trip_options)
                     destinations_options = list(destinations_df['destination_id'])
-                    selected_destn_id = st.selectbox('Select Destination Id', destinations_options)
+                    selected_destn_id_delete = st.selectbox('Select Destination Id to delete', destinations_options)
                     if st.button('Delete Destination'):
-                        response = delete_destination(selected_trip_id, selected_destn_id)
+                        response = delete_destination(selected_trip_id_delete, selected_destn_id_delete)
                         if response.status_code == 200:
                             st.success(f"Destination deleted successfully.")
                             time.sleep(1)
                             st.experimental_rerun()
                         else:
                             st.error('Failed to delete the Destination.' + response.json().get('error'))
-            else:
-                st.error(error or "No destinations found.")
+
+                with st.expander("Update Destination"):
+                    trip_options_update = list(destinations_df['trip_id'])
+                    selected_trip_id_update = st.selectbox('Select Trip Id to update', trip_options_update)
+                    destinations_options_update = list(destinations_df['destination_id'])
+                    selected_destn_id_update = st.selectbox('Select Destination Id to update',
+                                                            destinations_options_update)
+                    selected_destination = destinations_df[(destinations_df['trip_id'] == selected_trip_id_update) & (
+                            destinations_df['destination_id'] == selected_destn_id_update)].iloc[0]
+                    edit_destination_info(selected_destination)
 
             with st.form("add_destination_form", clear_on_submit=True):
                 st.subheader("Add Destination to Trip")
-                trip_options = list(trips_df['Trip Id'])
-                selected_trip_id = st.selectbox('Select Trip ID', trip_options)
+                trip_options_add = list(trips_df['Trip Id'])
+                selected_trip_id_add = st.selectbox('Select Trip ID', trip_options_add)
                 destination_name = st.text_input('Destination Name')
                 country = st.text_input('Country')
                 arrival_date = st.date_input('Arrival Date', None)
@@ -482,7 +540,7 @@ def display_destinations():
                         st.error('Destination name and country are required.')
                     else:
                         destination_data = {
-                            "trip_id": selected_trip_id,
+                            "trip_id": selected_trip_id_add,
                             "destination_name": destination_name,
                             "country": country,
                             "arrival_date": arrival_date.isoformat() if arrival_date else None,
@@ -502,6 +560,38 @@ def display_destinations():
     else:
         st.error("Please log in to view destinations.")
 
+
+def edit_destination_info(destination_info):
+    with st.expander('Update Destination Information'):
+        st.subheader("Update Destination Info")
+        # Create input fields for editable fields
+        new_destination_name = st.text_input("New Destination Name", value=destination_info['destination_name'])
+        new_country = st.text_input("New Country", value=destination_info['country'])
+        new_arrival_date = st.date_input("New Arrival Date", value=pd.to_datetime(destination_info['arrival_date']), key='new_arrival_date')
+        new_departure_date = st.date_input("New Departure Date", value=pd.to_datetime(destination_info['departure_date']), key='new_departure_date')
+        new_transport_mode = st.text_input("New Transport Mode", value=destination_info['transport_mode'])
+        new_travel_duration = st.text_input("New Travel Duration", value=destination_info['travel_duration'])
+
+        # Button to submit changes
+        if st.button("Submit Changes"):
+            # Construct updated destination info
+            updated_destination_info = {
+                'destination_id': destination_info['destination_id'],
+                'trip_id': destination_info['trip_id'],
+                'destination_name': new_destination_name,
+                'country': new_country,
+                'arrival_date': new_arrival_date.isoformat() if new_arrival_date else None,
+                'departure_date': new_departure_date.isoformat() if new_departure_date else None,
+                'transport_mode': new_transport_mode,
+                'travel_duration': new_travel_duration
+            }
+
+            # Call update_destination_info function
+            response = update_destination_info(updated_destination_info)
+            if response:
+                st.success("Destination information updated successfully.")
+            else:
+                st.error("Failed to update destination information.")
 
 def display_activities():
     st.subheader("User's Activity Data")
@@ -692,6 +782,7 @@ def main():
     # If user is logged in, show their info in the sidebar
     if 'user_email' in st.session_state:
         show_user_info()
+        edit_user_info(st.session_state.get('traveller_details', []))
         options.remove("Sign Up")
         options.remove("Login")
         icons.remove("person-plus")
