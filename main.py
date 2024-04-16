@@ -749,7 +749,6 @@ def update_traveller(email_id):
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     gender = data.get('gender')
-    date_of_birth = data.get('date_of_birth')
     unit_number = data.get('unit_number')
     street_name = data.get('street_name')
     street_number = data.get('street_number')
@@ -759,7 +758,7 @@ def update_traveller(email_id):
 
     try:
         cursor = connection.cursor()
-        cursor.callproc('UpdateTraveller', (email_id, first_name, last_name, gender, date_of_birth, unit_number,
+        cursor.callproc('UpdateTraveller', (email_id, first_name, last_name, gender, unit_number,
                                             street_name, street_number, city, state, zipcode))
         connection.commit()
         return jsonify({'message': 'Traveller updated successfully'}), 200
