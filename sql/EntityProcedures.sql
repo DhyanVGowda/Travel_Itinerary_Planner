@@ -357,3 +357,25 @@ DELIMITER ;
      VALUES (trip_id, item_id);
  END //
  DELIMITER ;
+
+-- Procedure to update trip table
+DELIMITER //
+CREATE PROCEDURE UpdateTrip(
+    IN p_trip_id INT,
+    IN p_trip_name VARCHAR(255),
+    IN p_start_date DATE,
+    IN p_end_date DATE,
+    IN p_trip_status ENUM('Planning In Progress','Planned Successfully','Ongoing', 'Completed')
+)
+BEGIN
+    UPDATE Trip
+    SET
+        trip_name = p_trip_name,
+        start_date = p_start_date,
+        end_date = p_end_date,
+        trip_status = p_trip_status
+    WHERE
+        trip_id = p_trip_id;
+END//
+
+DELIMITER ;

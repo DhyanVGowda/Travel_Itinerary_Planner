@@ -724,6 +724,25 @@ def delete_hostel(accom_id):
         cursor.close()
 
 
+@app.route('/updateTrip/<int:trip_id>', methods=['PUT'])
+def update_trip(trip_id):
+    data = request.json
+    trip_name = data.get('trip_name')
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    trip_status = data.get('trip_status')
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('UpdateTrip', (trip_id, trip_name, start_date, end_date, trip_status))
+        connection.commit()
+        return jsonify({'message': 'Trip updated successfully'}), 200
+    except Error as e:
+        print("Failed to update trip: ", str(e))
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
 if __name__ == '__main__':
     with open('configs.json', 'r') as file:
         configs = json.load(file)
