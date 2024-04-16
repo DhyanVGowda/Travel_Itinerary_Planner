@@ -64,7 +64,7 @@ def get_destinations():
     try:
         trips = data.get('trip_ids')
         cursor = connection.cursor()
-        sql = ("SELECT thd.trip_id, d.* "
+        sql = ("SELECT thd.trip_id,thd.transportation_mode,thd.travel_duration, d.* "
                "FROM Destination d "
                "INNER JOIN Trip_Has_Destination thd "
                "ON thd.destination_id = d.destination_id "
