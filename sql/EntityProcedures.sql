@@ -401,3 +401,22 @@ BEGIN
     WHERE email_id = p_email_id;
 END //
 DELIMITER ;
+
+-- Procedure to update destination table
+DELIMITER //
+CREATE PROCEDURE UpdateDestination(
+    IN p_destination_id INT,
+    IN p_destination_name VARCHAR(255),
+    IN p_country VARCHAR(100),
+    IN p_arrival_date DATE,
+    IN p_departure_date DATE
+)
+BEGIN
+    UPDATE Destination
+    SET destination_name = p_destination_name,
+        country = p_country,
+        arrival_date = p_arrival_date,
+        departure_date = p_departure_date
+    WHERE destination_id = p_destination_id;
+END //
+DELIMITER ;
