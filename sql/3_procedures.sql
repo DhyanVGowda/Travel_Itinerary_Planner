@@ -1,6 +1,41 @@
--- Procedure to add a new traveller
+DROP PROCEDURE IF EXISTS add_traveller;
+DROP PROCEDURE IF EXISTS add_trip;
+DROP PROCEDURE IF EXISTS delete_trip_by_id;
+DROP PROCEDURE IF EXISTS delete_activity_by_id;
+DROP PROCEDURE IF EXISTS delete_homestay_accommodation_by_id;
+DROP PROCEDURE IF EXISTS delete_hotel_accommodation_by_id;
+DROP PROCEDURE IF EXISTS delete_hostel_accommodation_by_id;
+DROP PROCEDURE IF EXISTS add_traveller_trip_plan;
+DROP PROCEDURE IF EXISTS delete_trip_destination;
+DROP PROCEDURE IF EXISTS add_expense;
+DROP PROCEDURE IF EXISTS delete_expense_by_id;
+DROP PROCEDURE IF EXISTS add_destination;
+DROP PROCEDURE IF EXISTS add_activity;
+DROP PROCEDURE IF EXISTS add_sightseeing_activity;
+DROP PROCEDURE IF EXISTS add_adventuresport_activity;
+DROP PROCEDURE IF EXISTS add_homestay_accommodation;
+DROP PROCEDURE IF EXISTS add_hotel_accommodation;
+DROP PROCEDURE IF EXISTS add_hostel_accommodation;
+DROP PROCEDURE IF EXISTS add_essential_packing_item;
+DROP PROCEDURE IF EXISTS delete_trip_required_item;
+DROP PROCEDURE IF EXISTS add_trip_destination;
+DROP PROCEDURE IF EXISTS add_trip_item;
+DROP PROCEDURE IF EXISTS update_trip;
+DROP PROCEDURE IF EXISTS update_traveller;
+DROP PROCEDURE IF EXISTS update_destination;
+DROP PROCEDURE IF EXISTS get_traveller_by_email;
+DROP PROCEDURE IF EXISTS get_trips_by_traveller_email;
+DROP PROCEDURE IF EXISTS get_traveler_trip_counts_and_expenses;
+DROP PROCEDURE IF EXISTS get_destination_popularity_over_time;
+DROP PROCEDURE IF EXISTS get_common_packing_items;
+DROP PROCEDURE IF EXISTS get_average_activity_cost_by_country;
+DROP PROCEDURE IF EXISTS get_accommodation_choices_by_travel_duration;
+
+
 DELIMITER //
-CREATE PROCEDURE AddTraveller(
+
+-- Procedure to add a new traveller
+CREATE PROCEDURE add_traveller(
     IN email VARCHAR(255),
     IN mobile VARCHAR(20),
     IN fname VARCHAR(100),
@@ -18,101 +53,77 @@ BEGIN
     IF EXISTS (SELECT 1 FROM Traveller WHERE email_id = email) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'An account with this email already exists.';
     ELSE
-        INSERT INTO Traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number, street_name, street_number, city, state, zipcode)
+        INSERT INTO traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number,
+        street_name, street_number, city, state, zipcode)
         VALUES (email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state, zip);
     END IF;
 END //
 
 -- Procedure to add a new trip
-DELIMITER //
-CREATE PROCEDURE AddTrip(
+CREATE PROCEDURE add_trip(
     IN trip_name VARCHAR(255),
     IN start_date DATE,
     IN end_date DATE,
     IN status ENUM('Planning In Progress','Planned Successfully','Ongoing', 'Completed')
 )
 BEGIN
-    INSERT INTO Trip (trip_name, start_date, end_date, trip_status)
+    INSERT INTO trip (trip_name, start_date, end_date, trip_status)
     VALUES (trip_name, start_date, end_date, status);
 END //
-DELIMITER ;
 
 -- Procedure to delete a trip by trip ID
-DELIMITER //
-CREATE PROCEDURE DeleteTripById(IN id INT)
+CREATE PROCEDURE delete_trip_by_id(IN id INT)
 BEGIN
-    DELETE FROM Trip WHERE trip_id = id;
+    DELETE FROM trip WHERE trip_id = id;
 END //
-DELIMITER ;
 
 -- Procedure to delete an activity by activity ID
-DELIMITER //
-CREATE PROCEDURE DeleteActivityById(IN act_id INT)
+CREATE PROCEDURE delete_activity_by_id(IN act_id INT)
 BEGIN
-    DELETE FROM Activity_SightSeeing WHERE activity_id = act_id;
-    DELETE FROM Activity_AdventureSport WHERE activity_id = act_id;
-    DELETE FROM Activity WHERE activity_id = act_id;
+    DELETE FROM activity_sightseeing WHERE activity_id = act_id;
+    DELETE FROM activity_adventuresport WHERE activity_id = act_id;
+    DELETE FROM activity WHERE activity_id = act_id;
 END //
-DELIMITER ;
 
 -- Procedure to delete a homestay accommodation by accommodation ID
-DELIMITER //
-CREATE PROCEDURE DeleteHomeStayAccommodationById(IN accom_id INT)
+CREATE PROCEDURE delete_homestay_accommodation_by_id(IN accom_id INT)
 BEGIN
-    DELETE FROM Accommodation_HomeStay WHERE accommodation_id = accom_id;
+    DELETE FROM accommodation_homestay WHERE accommodation_id = accom_id;
 END //
-DELIMITER ;
 
 -- Procedure to delete a hotel accommodation by accommodation ID
-DELIMITER //
-CREATE PROCEDURE DeleteHotelAccommodationById(IN accom_id INT)
+CREATE PROCEDURE delete_hotel_accommodation_by_id(IN accom_id INT)
 BEGIN
-    DELETE FROM Accommodation_Hotel WHERE accommodation_id = accom_id;
+    DELETE FROM accommodation_hotel WHERE accommodation_id = accom_id;
 END //
-DELIMITER ;
 
 -- Procedure to delete a hostel accommodation by accommodation ID
-DELIMITER //
-CREATE PROCEDURE DeleteHostelAccommodationById(IN accom_id INT)
+CREATE PROCEDURE delete_hostel_accommodation_by_id(IN accom_id INT)
 BEGIN
     DELETE FROM Accommodation_Hostel WHERE accommodation_id = accom_id;
 END //
-DELIMITER ;
 
 -- Procedure to add a traveller's trip plan
-DELIMITER //
-CREATE PROCEDURE AddTravellerTripPlan(
+CREATE PROCEDURE add_traveller_trip_plan(
     IN email VARCHAR(255),
     IN trip_id INT
 )
 BEGIN
-    INSERT INTO Traveller_Plans_Trip (email_id, trip_id)
+    INSERT INTO traveller_plans_trip (email_id, trip_id)
     VALUES (email, trip_id);
 END //
-DELIMITER ;
 
 -- Procedure to delete a trip's destination by destination ID and trip ID
-DELIMITER //
-CREATE PROCEDURE DeleteTripDestination(
+CREATE PROCEDURE delete_trip_destination(
     IN dest_id INT,
     IN trip_id INT
 )
 BEGIN
     DELETE FROM Trip_Has_Destination WHERE destination_id = dest_id AND trip_id = trip_id;
 END //
-DELIMITER ;
-
--- Procedure to delete a traveller by email
--- DELIMITER //
--- CREATE PROCEDURE DeleteTravellerByEmail(IN email VARCHAR(255))
--- BEGIN
---     DELETE FROM Traveller WHERE email_id = email;
--- END //
--- DELIMITER ;
 
  -- Procedure to add a new expense
- DELIMITER //
- CREATE PROCEDURE AddExpense(
+ CREATE PROCEDURE add_expense(
      IN exp_date DATE,
      IN exp_category VARCHAR(100),
      IN exp_description TEXT,
@@ -121,47 +132,30 @@ DELIMITER ;
      IN trip INT
  )
  BEGIN
-     INSERT INTO Expense (expense_date, expense_category, expense_description, amount, currency, trip_id)
+     INSERT INTO expense (expense_date, expense_category, expense_description, amount, currency, trip_id)
      VALUES (exp_date, exp_category, exp_description, amt, curr, trip);
  END //
- DELIMITER ;
 
  -- Procedure to delete an expense by expense ID
- DELIMITER //
- CREATE PROCEDURE DeleteExpenseById(IN exp_id INT)
+ CREATE PROCEDURE delete_expense_by_id(IN exp_id INT)
  BEGIN
      DELETE FROM Expense WHERE expense_id = exp_id;
  END //
- DELIMITER ;
-
-
 
  -- Procedure to add a new destination
- DELIMITER //
- CREATE PROCEDURE AddDestination(
+ CREATE PROCEDURE add_destination(
      IN dest_name VARCHAR(255),
      IN cntry VARCHAR(100),
      IN arr_date DATE,
      IN dep_date DATE
  )
  BEGIN
-     INSERT INTO Destination (destination_name, country, arrival_date, departure_date)
+     INSERT INTO destination (destination_name, country, arrival_date, departure_date)
      VALUES (dest_name, cntry, arr_date, dep_date);
  END //
- DELIMITER ;
-
--- -- Procedure to delete a destination by destination ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteDestinationById(IN dest_id INT)
--- BEGIN
---     DELETE FROM Destination WHERE destination_id = dest_id;
--- END //
--- DELIMITER ;
-
 
  -- Procedure to add a new activity
- DELIMITER //
- CREATE PROCEDURE AddActivity(
+ CREATE PROCEDURE add_activity(
      IN loc VARCHAR(255),
      IN description TEXT,
      IN act_date DATE,
@@ -171,41 +165,36 @@ DELIMITER ;
      IN dest_id INT
  )
  BEGIN
-     INSERT INTO Activity (activity_location, activity_description, activity_date, start_time, end_time, cost, destination_id)
+     INSERT INTO activity (activity_location, activity_description, activity_date, start_time, end_time, cost,
+     destination_id)
      VALUES (loc, description, act_date, start_time, end_time, cst, dest_id);
  END //
- DELIMITER ;
 
  -- Procedure to add a new sightseeing activity
- DELIMITER //
- CREATE PROCEDURE AddSightseeingActivity(
+ CREATE PROCEDURE add_sightseeing_activity(
      IN act_id INT,
      IN site_type VARCHAR(50),
      IN site_description TEXT
  )
  BEGIN
-     INSERT INTO Activity_SightSeeing (activity_id, site_type, site_description)
+     INSERT INTO activity_sightseeing (activity_id, site_type, site_description)
      VALUES (act_id, site_type, site_description);
  END //
- DELIMITER ;
 
  -- Procedure to add a new adventure sport activity
- DELIMITER //
- CREATE PROCEDURE AddAdventureSportActivity(
+ CREATE PROCEDURE add_adventuresport_activity(
      IN act_id INT,
      IN sport_type VARCHAR(50),
      IN min_age INT,
      IN restrictions TEXT
  )
  BEGIN
-     INSERT INTO Activity_AdventureSport (activity_id, sport_type, minimum_age, other_restrictions)
+     INSERT INTO activity_adventuresport (activity_id, sport_type, minimum_age, other_restrictions)
      VALUES (act_id, sport_type, min_age, restrictions);
  END //
- DELIMITER ;
 
--- -- Procedure to add a new homestay accommodation
- DELIMITER //
- CREATE PROCEDURE AddHomeStayAccommodation(
+-- Procedure to add a new homestay accommodation
+ CREATE PROCEDURE add_homestay_accommodation(
      IN name VARCHAR(255),
      IN cost DECIMAL(10, 2),
      IN phone VARCHAR(20),
@@ -223,14 +212,15 @@ DELIMITER ;
      IN pet_allowed BOOLEAN
  )
  BEGIN
-     INSERT INTO Accommodation_HomeStay (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, number_of_rooms, is_cook_available, stay_type, is_pet_allowed)
-     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, rooms, cook_avail, stay_type, pet_allowed);
+     INSERT INTO accommodation_homeStay (accommodation_name, cost_per_night, telephone_number, checkin_date,
+     checkout_date, street_name, street_number, city, state, zipcode, destination_id, number_of_rooms,
+     is_cook_available, stay_type, is_pet_allowed)
+     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, rooms, cook_avail,
+     stay_type, pet_allowed);
  END //
- DELIMITER ;
 
  -- Procedure to add a new hotel accommodation
- DELIMITER //
- CREATE PROCEDURE AddHotelAccommodation(
+ CREATE PROCEDURE add_hotel_accommodation(
      IN name VARCHAR(255),
      IN cost DECIMAL(10, 2),
      IN phone VARCHAR(20),
@@ -247,14 +237,13 @@ DELIMITER ;
      IN star ENUM('1','2','3','4','5')
  )
  BEGIN
-     INSERT INTO Accommodation_Hotel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, number_of_rooms, complimentary_meal, star_rating)
+     INSERT INTO accommodation_hotel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
+     street_name, street_number, city, state, zipcode, destination_id, number_of_rooms, complimentary_meal, star_rating)
      VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, rooms, meal, star);
  END //
--- DELIMITER ;
 
--- -- Procedure to add a new hostel accommodation
- DELIMITER //
- CREATE PROCEDURE AddHostelAccommodation(
+-- Procedure to add a new hostel accommodation
+ CREATE PROCEDURE add_hostel_accommodation(
      IN name VARCHAR(255),
      IN cost DECIMAL(10, 2),
      IN phone VARCHAR(20),
@@ -272,95 +261,55 @@ DELIMITER ;
      IN mixed_dorm BOOLEAN
  )
  BEGIN
-     INSERT INTO Accommodation_Hostel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date, street_name, street_number, city, state, zipcode, destination_id, meal_service, bathroom_type, free_wifi, mixed_gender_dorm)
-     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, meal, bath_type, wifi, mixed_dorm);
+     INSERT INTO accommodation_hostel (accommodation_name, cost_per_night, telephone_number, checkin_date,
+     checkout_date, street_name, street_number, city, state, zipcode, destination_id, meal_service, bathroom_type,
+     free_wifi, mixed_gender_dorm)
+     VALUES (name, cost, phone, checkin, checkout, street, street_no, city, state, zip, dest_id, meal, bath_type, wifi,
+     mixed_dorm);
  END //
- DELIMITER ;
 
  -- Procedure to add a new essential packing item
- DELIMITER //
- CREATE PROCEDURE AddEssentialPackingItem(
+ CREATE PROCEDURE add_essential_packing_item(
      IN item_name VARCHAR(255)
  )
  BEGIN
-     INSERT INTO EssentialPackingItems (item_name)
+     INSERT INTO essential_packing_item (item_name)
      VALUES (item_name);
  END //
- DELIMITER ;
-
--- -- Procedure to delete an essential packing item by item ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteEssentialPackingItemById(IN item_id INT)
--- BEGIN
---     DELETE FROM EssentialPackingItems WHERE item_id = item_id;
--- END //
--- DELIMITER ;
-
--- -- Procedure to delete a traveller's trip plan by email and trip ID
--- DELIMITER //
--- CREATE PROCEDURE DeleteTravellerTripPlan(
---     IN email VARCHAR(255),
---     IN trip_id INT
--- )
--- BEGIN
---     DELETE FROM Traveller_Plans_Trip WHERE email_id = email AND trip_id = trip_id;
--- END //
--- DELIMITER ;
-
-
-
--- -- Procedure to add a trip's required item
--- DELIMITER //
--- CREATE PROCEDURE AddTripRequiredItem(
---     IN trip_id INT,
---     IN item_id INT
--- )
--- BEGIN
---     INSERT INTO Trip_Requires_Item (trip_id, item_id)
---     VALUES (trip_id, item_id);
--- END //
--- DELIMITER ;
 
  -- Procedure to delete a trip's required item by trip ID and item ID
- DELIMITER //
- CREATE PROCEDURE DeleteTripRequiredItem(
+ CREATE PROCEDURE delete_trip_required_item(
      IN p_trip_id INT,
      IN p_item_id INT
  )
  BEGIN
-     DELETE FROM Trip_Requires_Item WHERE trip_id = p_trip_id AND item_id = p_item_id;
+     DELETE FROM trip_requires_item WHERE trip_id = p_trip_id AND item_id = p_item_id;
  END //
- DELIMITER ;
 
  -- Procedure to add a trip's destination
- DELIMITER //
- CREATE PROCEDURE AddTripDestination(
+ CREATE PROCEDURE add_trip_destination(
      IN dest_id INT,
      IN trip_id INT,
      IN transport_mode TEXT,
      IN travel_dur TIME
  )
  BEGIN
-     INSERT INTO Trip_Has_Destination (destination_id, trip_id, transportation_mode, travel_duration)
+     INSERT INTO trip_has_destination (destination_id, trip_id, transportation_mode, travel_duration)
      VALUES (dest_id, trip_id, transport_mode, travel_dur);
  END //
- DELIMITER ;
 
  -- Procedure to add a trip's essential item
-  DELIMITER //
- CREATE PROCEDURE AddTripItem(
+ CREATE PROCEDURE add_trip_item(
      IN trip_id INT,
      IN item_id INT
  )
  BEGIN
-     INSERT INTO Trip_Requires_Item (trip_id, item_id)
+     INSERT INTO trip_requires_item (trip_id, item_id)
      VALUES (trip_id, item_id);
  END //
- DELIMITER ;
 
 -- Procedure to update trip table
-DELIMITER //
-CREATE PROCEDURE UpdateTrip(
+CREATE PROCEDURE update_trip(
     IN p_trip_id INT,
     IN p_trip_name VARCHAR(255),
     IN p_start_date DATE,
@@ -368,7 +317,7 @@ CREATE PROCEDURE UpdateTrip(
     IN p_trip_status ENUM('Planning In Progress','Planned Successfully','Ongoing', 'Completed')
 )
 BEGIN
-    UPDATE Trip
+    UPDATE trip
     SET
         trip_name = p_trip_name,
         start_date = p_start_date,
@@ -378,16 +327,13 @@ BEGIN
         trip_id = p_trip_id;
 END//
 
-DELIMITER ;
-
 -- Procedure to update traveller table
-DELIMITER //
-CREATE PROCEDURE UpdateTraveller(IN p_email_id VARCHAR(255), IN p_first_name VARCHAR(100), IN p_last_name VARCHAR(100),
+CREATE PROCEDURE update_traveller(IN p_email_id VARCHAR(255), IN p_first_name VARCHAR(100), IN p_last_name VARCHAR(100),
                                 IN p_unit_number INT,
                                 IN p_street_name VARCHAR(255), IN p_street_number INT, IN p_city VARCHAR(100),
                                 IN p_state VARCHAR(100), IN p_zipcode VARCHAR(20))
 BEGIN
-    UPDATE Traveller
+    UPDATE traveller
     SET first_name = p_first_name,
         last_name = p_last_name,
         unit_number = p_unit_number,
@@ -398,11 +344,9 @@ BEGIN
         zipcode = p_zipcode
     WHERE email_id = p_email_id;
 END //
-DELIMITER ;
 
 -- Procedure to update destination table
-DELIMITER //
-CREATE PROCEDURE UpdateDestination(
+CREATE PROCEDURE update_destination(
     IN p_destination_id INT,
     IN p_destination_name VARCHAR(255),
     IN p_country VARCHAR(100),
@@ -410,50 +354,55 @@ CREATE PROCEDURE UpdateDestination(
     IN p_departure_date DATE
 )
 BEGIN
-    UPDATE Destination
+    UPDATE destination
     SET destination_name = p_destination_name,
         country = p_country,
         arrival_date = p_arrival_date,
         departure_date = p_departure_date
     WHERE destination_id = p_destination_id;
 END //
-DELIMITER ;
 
-DELIMITER //
-
-CREATE PROCEDURE GetTravelerTripCountsAndExpenses()
+-- Get traveller by email
+CREATE PROCEDURE get_traveller_by_email(IN email VARCHAR(255))
 BEGIN
-    SELECT Traveller.email_id, Traveller.first_name, Traveller.last_name,
-           COUNT(DISTINCT Trip.trip_id) AS total_trips,
+    SELECT * FROM Traveller WHERE email_id = email;
+END //
+
+-- Get trips by traveller email
+CREATE PROCEDURE get_trips_by_traveller_email(IN email_id VARCHAR(255))
+BEGIN
+    select * from trip where trip_id in (select trip_id from traveller_plans_trip where
+    traveller_plans_trip.email_id=email_id);
+END//
+
+
+CREATE PROCEDURE get_traveler_trip_counts_and_expenses()
+BEGIN
+    SELECT traveller.email_id, traveller.first_name, traveller.last_name,
+           COUNT(DISTINCT trip.trip_id) AS total_trips,
            SUM(Expense.amount) AS total_expenses
-    FROM Traveller
-    JOIN Traveller_Plans_Trip ON Traveller.email_id = Traveller_Plans_Trip.email_id
-    JOIN Trip ON Traveller_Plans_Trip.trip_id = Trip.trip_id
-    LEFT JOIN Expense ON Trip.trip_id = Expense.trip_id
-    GROUP BY Traveller.email_id;
+    FROM traveller
+    JOIN traveller_plans_trip ON traveller.email_id = traveller_plans_trip.email_id
+    JOIN Trip ON traveller_plans_trip.trip_id = trip.trip_id
+    LEFT JOIN expense ON trip.trip_id = expense.trip_id
+    GROUP BY traveller.email_id;
 END //
 
-DELIMITER ;
 
-DELIMITER //
-
-CREATE PROCEDURE GetDestinationPopularityOverTime()
+CREATE PROCEDURE get_destination_popularity_over_time()
 BEGIN
-    SELECT Destination.destination_name, YEAR(Trip.start_date) AS year, MONTH(Trip.start_date) AS month,
+    SELECT destination.destination_name, YEAR(trip.start_date) AS year, MONTH(trip.start_date) AS month,
            COUNT(*) AS visit_count
-    FROM Destination
-    JOIN Trip_Has_Destination ON Destination.destination_id = Trip_Has_Destination.destination_id
-    JOIN Trip ON Trip_Has_Destination.trip_id = Trip.trip_id
-    WHERE Trip.trip_status = 'Completed'
-    GROUP BY Destination.destination_name, YEAR(Trip.start_date), MONTH(Trip.start_date)
-    ORDER BY Destination.destination_name, year, month;
+    FROM destination
+    JOIN trip_has_destination ON destination.destination_id = trip_has_destination.destination_id
+    JOIN trip ON trip_has_destination.trip_id = trip.trip_id
+    WHERE trip.trip_status = 'Completed'
+    GROUP BY destination.destination_name, YEAR(trip.start_date), MONTH(trip.start_date)
+    ORDER BY destination.destination_name, year, month;
 END //
 
-DELIMITER ;
 
-DELIMITER //
-
-CREATE PROCEDURE GetCommonPackingItems()
+CREATE PROCEDURE get_common_packing_items()
 BEGIN
     SELECT EssentialPackingItems.item_name, COUNT(*) AS item_count
     FROM EssentialPackingItems
@@ -463,11 +412,8 @@ BEGIN
     LIMIT 10;
 END //
 
-DELIMITER ;
 
-DELIMITER //
-
-CREATE PROCEDURE GetAverageActivityCostByCountry()
+CREATE PROCEDURE get_average_activity_cost_by_country()
 BEGIN
     SELECT Destination.country, AVG(Activity.cost) AS average_cost
     FROM Activity
@@ -475,11 +421,8 @@ BEGIN
     GROUP BY Destination.country;
 END //
 
-DELIMITER ;
 
-DELIMITER //
-
-CREATE PROCEDURE GetAccommodationChoicesByTravelDuration()
+CREATE PROCEDURE get_accommodation_choices_by_travel_duration()
 BEGIN
     SELECT
         Accommodation_Hotel.accommodation_name,
@@ -490,5 +433,5 @@ BEGIN
     ORDER BY duration DESC, booking_count DESC;
 END //
 
-DELIMITER ;
 
+DELIMITER ;

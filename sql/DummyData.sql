@@ -1,5 +1,5 @@
 -- Dummy data for Traveller table
-INSERT INTO Traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number, street_name,
+INSERT INTO traveller (email_id, mobile_number, first_name, last_name, gender, date_of_birth, unit_number, street_name,
                        street_number, city, state, zipcode)
 VALUES ('example1@example.com', '1234567890', 'John', 'Doe', 'Male', '1990-01-01', 101, 'Main St', 123, 'City1',
         'State1', '12345'),
@@ -13,7 +13,7 @@ VALUES ('example1@example.com', '1234567890', 'John', 'Doe', 'Male', '1990-01-01
         'State5', '23456');
 
 -- Dummy data for Trip table
-INSERT INTO Trip (trip_name, start_date, end_date, trip_status)
+INSERT INTO trip (trip_name, start_date, end_date, trip_status)
 VALUES ('Trip 1', '2024-05-01', '2024-05-10', 'Planning In Progress'),
        ('Trip 2', '2024-06-15', '2024-06-25', 'Planned Successfully'),
        ('Trip 3', '2024-07-01', '2024-07-10', 'Ongoing'),
@@ -21,7 +21,7 @@ VALUES ('Trip 1', '2024-05-01', '2024-05-10', 'Planning In Progress'),
        ('Trip 5', '2024-09-01', '2024-09-10', 'Planning In Progress');
 
 -- Dummy data for Expense table
-INSERT INTO Expense (expense_date, expense_category, expense_description, amount, currency, trip_id)
+INSERT INTO expense (expense_date, expense_category, expense_description, amount, currency, trip_id)
 VALUES ('2024-05-02', 'Food', 'Dinner at a restaurant', 50.00, 'USD', 1),
        ('2024-05-05', 'Transportation', 'Taxi fare', 20.00, 'USD', 1),
        ('2024-06-16', 'Sightseeing', 'Entrance fee to museum', 10.00, 'USD', 2),
@@ -33,7 +33,7 @@ VALUES ('2024-05-02', 'Food', 'Dinner at a restaurant', 50.00, 'USD', 1),
        ('2024-09-05', 'Food', 'Street food', 25.00, 'USD', 5);
 
 -- Dummy data for Destination table
-INSERT INTO Destination (destination_name, country, arrival_date, departure_date)
+INSERT INTO destination (destination_name, country, arrival_date, departure_date)
 VALUES ('Destination 1', 'Country1', '2024-05-01', '2024-05-10'),
        ('Destination 2', 'Country2', '2024-06-15', '2024-06-25'),
        ('Destination 3', 'Country3', '2024-07-01', '2024-07-10'),
@@ -41,7 +41,7 @@ VALUES ('Destination 1', 'Country1', '2024-05-01', '2024-05-10'),
        ('Destination 5', 'Country5', '2024-09-01', '2024-09-10');
 
 -- Dummy data for Activity table
-INSERT INTO Activity (activity_location, activity_description, activity_date, start_time, end_time, cost,
+INSERT INTO activity (activity_location, activity_description, activity_date, start_time, end_time, cost,
                       destination_id)
 VALUES ('Activity 1', 'Description 1', '2024-05-02', '09:00:00', '12:00:00', 30.00, 1),
        ('Activity 2', 'Description 2', '2024-06-16', '10:00:00', '13:00:00', 20.00, 2),
@@ -51,18 +51,18 @@ VALUES ('Activity 1', 'Description 1', '2024-05-02', '09:00:00', '12:00:00', 30.
        ('Activity 6', 'Description 6', '2024-09-02', '13:00:00', '16:00:00', 35.00, 5);
 
 -- Dummy data for Activity_SightSeeing table
-INSERT INTO Activity_SightSeeing (activity_id, site_type, site_description)
+INSERT INTO activity_sightSeeing (activity_id, site_type, site_description)
 VALUES (1, 'Museum', 'Description of museum sightseeing'),
        (2, 'Historical Site', 'Description of historical site visit'),
        (5, 'Beach Visit', 'Description of beach visit');
 
 -- Dummy data for Activity_AdventureSport table
-INSERT INTO Activity_AdventureSport (activity_id, sport_type, minimum_age, other_restrictions)
+INSERT INTO activity_adventuresport (activity_id, sport_type, minimum_age, other_restrictions)
 VALUES (3, 'Hiking', 12, 'No other restrictions'),
        (4, 'Rock Climbing', 15, 'Experience required');
 
 -- Dummy data for Accommodation_HomeStay table
-INSERT INTO Accommodation_HomeStay (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
+INSERT INTO accommodation_homeStay (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
                                     street_name, street_number, city, state, zipcode, destination_id, number_of_rooms,
                                     is_cook_available, stay_type, is_pet_allowed)
 VALUES ('HomeStay 1', 50.00, '1112223333', '2024-05-01', '2024-05-10', 'Main St', '456', 'City1', 'State1', '12345', 1,
@@ -77,7 +77,7 @@ VALUES ('HomeStay 1', 50.00, '1112223333', '2024-05-01', '2024-05-10', 'Main St'
         5, 3, 1, 'Private Room', 0);
 
 -- Dummy data for Accommodation_Hotel table
-INSERT INTO Accommodation_Hotel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
+INSERT INTO accommodation_hotel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
                                  street_name, street_number, city, state, zipcode, destination_id, number_of_rooms,
                                  complimentary_meal, star_rating)
 VALUES ('Hotel 1', 100.00, '2223334444', '2024-05-01', '2024-05-10', 'Main St', '101', 'City1', 'State1', '12345', 1, 2,
@@ -92,7 +92,7 @@ VALUES ('Hotel 1', 100.00, '2223334444', '2024-05-01', '2024-05-10', 'Main St', 
         3, 1, '3');
 
 -- Dummy data for Accommodation_Hostel table
-INSERT INTO Accommodation_Hostel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
+INSERT INTO accommodation_hostel (accommodation_name, cost_per_night, telephone_number, checkin_date, checkout_date,
                                   street_name, street_number, city, state, zipcode, destination_id, meal_service,
                                   bathroom_type, free_wifi, mixed_gender_dorm)
 VALUES ('Hostel 1', 20.00, '1231231234', '2024-05-01', '2024-05-10', 'Main St', '303', 'City1', 'State1', '12345', 1, 1,
@@ -107,7 +107,7 @@ VALUES ('Hostel 1', 20.00, '1231231234', '2024-05-01', '2024-05-10', 'Main St', 
         1, 'Shared', 1, 1);
 
 -- Dummy data for EssentialPackingItems table
-INSERT INTO EssentialPackingItems (item_name)
+INSERT INTO essential_packing_item (item_name)
 VALUES ('Clothes'),
        ('Toothbrush'),
        ('Sunscreen'),
@@ -120,7 +120,7 @@ VALUES ('Clothes'),
        ('Charger');
 
 -- Dummy data for Traveller_Plans_Trip table
-INSERT INTO Traveller_Plans_Trip (email_id, trip_id)
+INSERT INTO traveller_plans_trip (email_id, trip_id)
 VALUES ('example1@example.com', 1),
        ('example2@example.com', 2),
        ('example3@example.com', 3),
@@ -128,7 +128,7 @@ VALUES ('example1@example.com', 1),
        ('example5@example.com', 5);
 
 -- Dummy data for Trip_Requires_Item table
-INSERT INTO Trip_Requires_Item (trip_id, item_id)
+INSERT INTO trip_requires_item (trip_id, item_id)
 VALUES (1, 1),
        (1, 2),
        (2, 3),
@@ -141,7 +141,7 @@ VALUES (1, 1),
        (5, 10);
 
 -- Dummy data for Trip_Has_Destination table
-INSERT INTO Trip_Has_Destination (destination_id, trip_id, transportation_mode, travel_duration)
+INSERT INTO trip_has_destination (destination_id, trip_id, transportation_mode, travel_duration)
 VALUES (1, 1, 'Flight', '03:00:00'),
        (2, 2, 'Train', '04:30:00'),
        (3, 3, 'Car', '05:00:00'),

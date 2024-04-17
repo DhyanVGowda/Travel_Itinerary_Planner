@@ -4,7 +4,7 @@ CREATE DATABASE travel_itinerary;
 
 USE travel_itinerary;
 
-CREATE TABLE Traveller (
+CREATE TABLE traveller (
     email_id VARCHAR(255) PRIMARY KEY,
     mobile_number VARCHAR(20) UNIQUE NOT NULL,
     first_name VARCHAR(100),
@@ -19,7 +19,7 @@ CREATE TABLE Traveller (
     zipcode VARCHAR(20)
 );
 
-CREATE TABLE Trip (
+CREATE TABLE trip (
     trip_id INT AUTO_INCREMENT PRIMARY KEY,
     trip_name VARCHAR(255) not null,
     start_date DATE,
@@ -27,7 +27,7 @@ CREATE TABLE Trip (
     trip_status enum('Planning In Progress','Planned Successfully','Ongoing', 'Completed') not null
 );
 
-CREATE TABLE Expense (
+CREATE TABLE expense (
     expense_id INT AUTO_INCREMENT PRIMARY KEY,
     expense_date DATE ,
     expense_category VARCHAR(100),
@@ -35,10 +35,10 @@ CREATE TABLE Expense (
     amount DECIMAL(10, 2) not null,
     currency VARCHAR(10) default 'USD',
     trip_id INT,
-    FOREIGN KEY (trip_id) REFERENCES Trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (trip_id) REFERENCES trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Destination (
+CREATE TABLE destination (
     destination_id INT AUTO_INCREMENT PRIMARY KEY,
     destination_name VARCHAR(255) not null,
     country VARCHAR(100) not null,
@@ -46,7 +46,7 @@ CREATE TABLE Destination (
     departure_date DATE 
 );
 
-CREATE TABLE Activity (
+CREATE TABLE activity (
     activity_id INT AUTO_INCREMENT PRIMARY KEY,
     activity_location VARCHAR(255) not null,
     activity_description TEXT,
@@ -55,25 +55,25 @@ CREATE TABLE Activity (
     end_time TIME,
     cost DECIMAL(10, 2),
     destination_id INT,
-    FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (destination_id) REFERENCES destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Activity_SightSeeing (
+CREATE TABLE activity_sightseeing (
     activity_id INT AUTO_INCREMENT,
     site_type VARCHAR(50),
     site_description TEXT,
-    FOREIGN KEY (activity_id) REFERENCES Activity(activity_id)
+    FOREIGN KEY (activity_id) REFERENCES activity(activity_id)
 );
 
-CREATE TABLE Activity_AdventureSport (
+CREATE TABLE activity_adventuresport (
     activity_id INT AUTO_INCREMENT,
     sport_type VARCHAR(50),
     minimum_age INT,
     other_restrictions TEXT,
-    FOREIGN KEY (activity_id) REFERENCES Activity(activity_id)
+    FOREIGN KEY (activity_id) REFERENCES activity(activity_id)
 );
 
-CREATE TABLE Accommodation_HomeStay (
+CREATE TABLE accommodation_homestay (
     accommodation_id INT AUTO_INCREMENT primary key,
     accommodation_name VARCHAR(255) not null,
     cost_per_night DECIMAL(10, 2) not null,
@@ -90,10 +90,10 @@ CREATE TABLE Accommodation_HomeStay (
     is_cook_available BOOLEAN,
     stay_type VARCHAR(255),
     is_pet_allowed BOOLEAN,
-    FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (destination_id) REFERENCES destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Accommodation_Hotel (
+CREATE TABLE accommodation_hotel (
    accommodation_id INT AUTO_INCREMENT primary key,
     accommodation_name VARCHAR(255) not null,
     cost_per_night DECIMAL(10, 2) not null,
@@ -109,10 +109,10 @@ CREATE TABLE Accommodation_Hotel (
     number_of_rooms INT not null,
     complimentary_meal BOOLEAN,
     star_rating enum('1','2','3','4','5'),
-    FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (destination_id) REFERENCES destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Accommodation_Hostel (
+CREATE TABLE accommodation_hostel (
    accommodation_id INT AUTO_INCREMENT primary key,
     accommodation_name VARCHAR(255) not null,
     cost_per_night DECIMAL(10, 2) not null,
@@ -129,41 +129,41 @@ CREATE TABLE Accommodation_Hostel (
     bathroom_type enum('Shared', 'Private'),
     free_wifi BOOLEAN,
     mixed_gender_dorm BOOLEAN,
-    FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (destination_id) REFERENCES destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE EssentialPackingItems (
+CREATE TABLE essential_packing_item (
     item_id INT PRIMARY KEY auto_increment,
     item_name VARCHAR(255) not null
 );
 
-CREATE TABLE Traveller_Plans_Trip (
+CREATE TABLE traveller_plans_trip (
      email_id VARCHAR(255),
      trip_id INT,
      PRIMARY KEY(email_id, trip_id), 
-     FOREIGN KEY (email_id) REFERENCES Traveller(email_id) ON UPDATE CASCADE ON DELETE CASCADE, 
-	 FOREIGN KEY (trip_id) REFERENCES Trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
+     FOREIGN KEY (email_id) REFERENCES traveller(email_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	 FOREIGN KEY (trip_id) REFERENCES trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Trip_Requires_Item (
+CREATE TABLE trip_requires_item (
      trip_id INT,
      item_id INT,
      PRIMARY KEY(item_id, trip_id), 
-     FOREIGN KEY (item_id) REFERENCES EssentialPackingItems(item_id) ON UPDATE CASCADE ON DELETE CASCADE, 
-	 FOREIGN KEY (trip_id) REFERENCES Trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
+     FOREIGN KEY (item_id) REFERENCES essential_packing_item(item_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	 FOREIGN KEY (trip_id) REFERENCES trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Trip_Has_Destination (
+CREATE TABLE trip_has_destination (
      destination_id INT,
      trip_id INT,
      transportation_mode TEXT,
      travel_duration TIME,
      PRIMARY KEY(destination_id, trip_id), 
-     FOREIGN KEY (destination_id) REFERENCES Destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE, 
-	 FOREIGN KEY (trip_id) REFERENCES Trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
+     FOREIGN KEY (destination_id) REFERENCES destination(destination_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	 FOREIGN KEY (trip_id) REFERENCES trip(trip_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE Audit_Log (
+CREATE TABLE audit_log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     table_name VARCHAR(255) NOT NULL,
     action VARCHAR(50) NOT NULL,

@@ -135,7 +135,7 @@ INSERT INTO Accommodation_Hostel (accommodation_name, cost_per_night, telephone_
 ('The Nomadic', 29.00, '9011110011', '2023-06-25', '2023-06-30', 'Nomad St', 1111, 'Austin', 'TX', '78701', 11, FALSE, 'Shared', TRUE, TRUE);
 
 -- Data for EssentialPackingItems table
-INSERT INTO EssentialPackingItems (item_name) VALUES
+INSERT INTO essential_packing_item (item_name) VALUES
 ('Waterproof Jacket'),
 ('Travel Adapter'),
 ('Sunscreen'),
@@ -164,7 +164,7 @@ INSERT INTO Traveller_Plans_Trip (email_id, trip_id) VALUES
 
 -- Data for Trip_Requires_Item table
 INSERT INTO Trip_Requires_Item (trip_id, item_id) VALUES
-(1, 4),  
+(1, 4),
 (2, 2),  -- Travel Adapter for Liberty
 (3, 4),  -- Hiking Boots for Grand Canyon
 (4, 5),  -- First Aid Kit for Disney World
@@ -188,8 +188,4 @@ INSERT INTO Trip_Has_Destination (destination_id, trip_id, transportation_mode, 
 (8, 8, 'Walk', '03:00:00'),   
 (9, 9, '4x4', '04:00:00'),    
 (10, 10, 'Bus', '02:00:00'),  
-(11, 11, 'Ferry', '00:45:00'); 
-
-
-
-
+(11, 11, 'Ferry', '00:45:00');
