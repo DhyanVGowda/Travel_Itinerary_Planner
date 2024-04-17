@@ -775,7 +775,7 @@ def update_traveller(email_id):
         cursor.close()
 
 
-@app.route('/updateDestination/<int:destination_id>', methods=['PUT'])
+@app.route('/updateDestination//<int:destination_id>', methods=['PUT'])
 def update_destination(destination_id):
     data = request.json
     destination_name = data.get('destination_name')

@@ -313,7 +313,6 @@ def edit_user_info(user_info):
                 response = update_user_info(user_update_request, st.session_state['user_email'])
                 if response:
                     st.success("User information updated successfully.")
-                    st.experimental_set_query_params()
                 else:
                     st.error("Failed to update user information.")
 
