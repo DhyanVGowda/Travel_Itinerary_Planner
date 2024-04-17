@@ -792,7 +792,7 @@ def display_expenses():
 
 
 def main():
-    st.title('Travel Itinerary App')
+    st.title('Travel Itinerary')
 
     # Sidebar menu
     options = ["Home", "Sign Up", "Login"]
@@ -800,13 +800,14 @@ def main():
 
     # If user is logged in, show their info in the sidebar
     if 'user_email' in st.session_state:
+        st.sidebar.image('../../resource/tgroup_travllers.jpg', caption='To Infinity and Beyond!')
         show_user_info()
         edit_user_info(st.session_state.get('traveller_details', []))
         options.remove("Sign Up")
         options.remove("Login")
         icons.remove("person-plus")
         icons.remove("door-open")
-        options = ["Home", "Your Trips", "Destinations", "Activities", "Accommodations", "Expenses",
+        options = ["Home", "Planned Trips", "Destinations", "Activities", "Accommodations", "Expenses",
                    "Essential Items","All Trips", "Logout"]
         icons = ["house", "map", "globe", "building", "compass", "credit-card", "list", "clipboard-data",
                  "box-arrow-right"]
@@ -816,8 +817,11 @@ def main():
 
     if selected == "Home":
         st.subheader("Welcome to the Travel Itinerary App!")
+        st.subheader("Streamline Your Travels: Plan, Explore, Thrive!")
         if 'user_email' in st.session_state:
             st.write("Logged in as:", st.session_state['user_email'])
+
+        st.image('../../resource/group_of_travellers.png', caption='Accio Memories: Magical Travel Awaits')
     elif selected == "Sign Up":
         signup_page()
     elif selected == "Login":
@@ -1083,11 +1087,11 @@ def display_all_trips_without_procedures():
 def display_all_trips_with_procedures():
     st.subheader("All Trips Overview")
 
-    average_cost_url = "http://127.0.0.1:8080/averageActivityCostByCountry"
-    packing_items_url = "http://127.0.0.1:8080/commonPackingItems"
-    popularity_url = "http://127.0.0.1:8080/destinationPopularityOverTime"
-    expenses_url = "http://127.0.0.1:8080/travelerTripCountsAndExpenses"
-    accommodation_choices_url = "http://127.0.0.1:8080/getAccommodationChoices"
+    average_cost_url = f"{FLASK_SERVER_URL}/averageActivityCostByCountry"
+    packing_items_url = f"{FLASK_SERVER_URL}/commonPackingItems"
+    popularity_url = f"{FLASK_SERVER_URL}/destinationPopularityOverTime"
+    expenses_url = f"{FLASK_SERVER_URL}/travelerTripCountsAndExpenses"
+    accommodation_choices_url = f"{FLASK_SERVER_URL}/getAccommodationChoices"
 
     average_cost_response = requests.get(average_cost_url).json()
     packing_items_response = requests.get(packing_items_url).json()
