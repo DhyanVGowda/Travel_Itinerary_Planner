@@ -1,7 +1,7 @@
 from decimal import Decimal
 from time import time
 from sql_db_connector import connect_to_database
-from flask import Flask, Response, jsonify, request
+from flask import Flask, jsonify, request
 import json
 import datetime
 import pymysql
@@ -101,7 +101,7 @@ def add_expense():
     trip = data['trip_id']
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddExpense', (exp_date, exp_category, exp_description, amt, curr, trip))
+        cursor.callproc('add_expense', (exp_date, exp_category, exp_description, amt, curr, trip))
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'Expense added successfully'}), 201
@@ -133,12 +133,12 @@ def create_trip_details():
 
             connection.begin()
 
-            cursor.callproc('AddTrip', [trip_name, start_date, end_date, status])
+            cursor.callproc('add_trip', [trip_name, start_date, end_date, status])
 
             cursor.execute("SELECT LAST_INSERT_ID()")
             trip_id = cursor.fetchone()[0]
 
-            cursor.callproc('AddTravellerTripPlan', [email, trip_id])
+            cursor.callproc('add_traveller_trip_plan', [email, trip_id])
 
             connection.commit()
 
@@ -165,14 +165,14 @@ def add_destination_to_trip():
             connection.begin()
 
             # Create a new destination entry
-            cursor.callproc('AddDestination', [dest_name, country, arrival_date, departure_date])
+            cursor.callproc('add_destination', [dest_name, country, arrival_date, departure_date])
 
             # Get the destination ID
             cursor.execute("SELECT LAST_INSERT_ID()")
             dest_id = cursor.fetchone()[0]
 
             # Add the trip's destination
-            cursor.callproc('AddTripDestination', [dest_id, trip_id, transport_mode, travel_duration])
+            cursor.callproc('add_trip_destination', [dest_id, trip_id, transport_mode, travel_duration])
 
             connection.commit()
 
@@ -193,14 +193,14 @@ def add_item_to_trip():
             connection.begin()
 
             # Create a new destination entry
-            cursor.callproc('AddEssentialPackingItem', [item_name])
+            cursor.callproc('add_essential_packing_item', [item_name])
 
             # Get the destination ID
             cursor.execute("SELECT LAST_INSERT_ID()")
             item_id = cursor.fetchone()[0]
 
             # Add the trip's essential item
-            cursor.callproc('AddTripItem', [trip_id, item_id])
+            cursor.callproc('add_trip_item', [trip_id, item_id])
 
             connection.commit()
 
@@ -230,7 +230,7 @@ def signup():
 
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddTraveller',
+        cursor.callproc('add_traveller',
                         [email, mobile, fname, lname, gen, dob, unit, street, street_no, city, state, zip_code])
         connection.commit()
         return jsonify({'message': 'Signup successful'}), 201
@@ -289,7 +289,7 @@ def add_home_stay():
     is_pet_allowed = check_empty(data['is_pet_allowed'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddHomeStayAccommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
+        cursor.callproc('add_homestay_accommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
                                                      checkout_date, street_name, street_number, city, state, zipcode,
                                                      destination_id, number_of_rooms, is_cook_available, stay_type,
                                                      is_pet_allowed))
@@ -323,7 +323,7 @@ def add_hotel():
     star_rating = check_empty(data['star_rating'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddHotelAccommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
+        cursor.callproc('add_hotel_accommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
                                                   checkout_date, street_name, street_number, city, state, zipcode,
                                                   destination_id, number_of_rooms, meal, star_rating))
 
@@ -357,7 +357,7 @@ def add_hostel():
     mixed_dorm = check_empty(data['mixed_dorm'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddHostelAccommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
+        cursor.callproc('add_hostel_accommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
                                                    checkout_date, street_name, street_number, city, state, zipcode,
                                                    destination_id, meal, bath_type, wifi, mixed_dorm))
 
@@ -383,7 +383,7 @@ def add_activity():
     dest_id = data['destination_id']
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddActivity', (loc, description, act_date, start_time, end_time, cst, dest_id))
+        cursor.callproc('add_activity', (loc, description, act_date, start_time, end_time, cst, dest_id))
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'Activity added successfully'}), 201
@@ -408,11 +408,11 @@ def add_sightseeing_activity():
     site_description = check_empty(data['site_description'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddActivity', (loc, description, act_date, start_time, end_time, cst, dest_id))
+        cursor.callproc('add_activity', (loc, description, act_date, start_time, end_time, cst, dest_id))
         # Call the AddSightseeingActivity procedure
         cursor.execute("SELECT LAST_INSERT_ID()")
         activity_id = cursor.fetchone()[0]
-        cursor.callproc('AddSightseeingActivity', [activity_id, site_type, site_description])
+        cursor.callproc('add_sightseeing_activity', [activity_id, site_type, site_description])
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'SightSeeing Activity added successfully'}), 201
@@ -439,11 +439,11 @@ def add__activity():
     restrictions = check_empty(data['restrictions'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('AddActivity', (loc, description, act_date, start_time, end_time, cst, dest_id))
+        cursor.callproc('add_activity', (loc, description, act_date, start_time, end_time, cst, dest_id))
         # Call the AddAdventureSportActivity procedure
         cursor.execute("SELECT LAST_INSERT_ID()")
         activity_id = cursor.fetchone()[0]
-        cursor.callproc('AddAdventureSportActivity', [activity_id, sport_type, min_age, restrictions])
+        cursor.callproc('add_adventuresport_activity', [activity_id, sport_type, min_age, restrictions])
         # Commit the transaction
         connection.commit()
         return jsonify({'message': 'SightSeeing Activity added successfully'}), 201
@@ -463,7 +463,7 @@ def login():
 
     try:
         cursor = connection.cursor()
-        cursor.callproc('GetTravellerByEmail', [email])
+        cursor.callproc('get_traveller_by_email', [email])
         traveller = cursor.fetchone()
         if traveller:
             phone_number = traveller[1]
@@ -486,7 +486,7 @@ def login():
 def delete_trip(trip_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteTripById', [trip_id])
+        cursor.callproc('delete_trip_by_id', [trip_id])
         connection.commit()
         return jsonify({'message': 'Trip deleted successfully'}), 200
     except Error as e:
@@ -500,7 +500,7 @@ def delete_trip(trip_id):
 def delete_expense(expense_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteExpenseById', [expense_id])
+        cursor.callproc('delete_expense_by_id', [expense_id])
         connection.commit()
         return jsonify({'message': 'Expense deleted successfully'}), 200
     except Error as e:
@@ -634,7 +634,7 @@ def get_activity():
 def delete_destination(trip_id, dest_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteTripDestination', [dest_id, trip_id])
+        cursor.callproc('delete_trip_destination', [dest_id, trip_id])
         connection.commit()
         return jsonify({'message': 'Destination removed successfully'}), 200
     except Error as e:
@@ -648,7 +648,7 @@ def delete_destination(trip_id, dest_id):
 def delete_item(trip_id, item_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteTripRequiredItem', [trip_id, item_id])
+        cursor.callproc('delete_trip_required_item', [trip_id, item_id])
         connection.commit()
         return jsonify({'message': 'Item removed successfully'}), 200
     except Error as e:
@@ -662,7 +662,7 @@ def delete_item(trip_id, item_id):
 def delete_activity(activity_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteActivityById', [activity_id])
+        cursor.callproc('delete_activity_by_id', [activity_id])
         connection.commit()
         return jsonify({'message': 'Activity deleted successfully'}), 200
     except Error as e:
@@ -676,7 +676,7 @@ def delete_activity(activity_id):
 def delete_homestay(accom_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteHomeStayAccommodationById', [accom_id])
+        cursor.callproc('delete_homestay_accommodation_by_id', [accom_id])
         connection.commit()
         return jsonify({'message': 'Homestay accommodation deleted successfully'}), 200
     except Error as e:
@@ -690,7 +690,7 @@ def delete_homestay(accom_id):
 def delete_hotel(accom_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteHotelAccommodationById', [accom_id])
+        cursor.callproc('delete_hotel_accommodation_by_id', [accom_id])
         connection.commit()
         return jsonify({'message': 'Hotel accommodation deleted successfully'}), 200
     except Error as e:
@@ -704,7 +704,7 @@ def delete_hotel(accom_id):
 def delete_hostel(accom_id):
     try:
         cursor = connection.cursor()
-        cursor.callproc('DeleteHostelAccommodationById', [accom_id])
+        cursor.callproc('delete_hostel_accommodation_by_id', [accom_id])
         connection.commit()
         return jsonify({'message': 'Hostel accommodation deleted successfully'}), 200
     except Error as e:
@@ -723,7 +723,7 @@ def update_trip(trip_id):
     trip_status = data.get('trip_status')
     try:
         cursor = connection.cursor()
-        cursor.callproc('UpdateTrip', (trip_id, trip_name, start_date, end_date, trip_status))
+        cursor.callproc('update_trip', (trip_id, trip_name, start_date, end_date, trip_status))
         connection.commit()
         return jsonify({'message': 'Trip updated successfully'}), 200
     except Error as e:
@@ -747,7 +747,7 @@ def update_traveller(email_id):
 
     try:
         cursor = connection.cursor()
-        cursor.callproc('UpdateTraveller', (email_id, first_name, last_name, unit_number,
+        cursor.callproc('update_traveller', (email_id, first_name, last_name, unit_number,
                                             street_name, street_number, city, state, zipcode))
         connection.commit()
         return jsonify({'message': 'Traveller updated successfully'}), 200
@@ -767,7 +767,7 @@ def update_destination(destination_id):
     departure_date = data.get('departure_date')
     try:
         cursor = connection.cursor()
-        cursor.callproc('UpdateDestination', (destination_id, destination_name, country, arrival_date, departure_date))
+        cursor.callproc('update_destination', (destination_id, destination_name, country, arrival_date, departure_date))
         connection.commit()
         return jsonify({'message': 'Destination updated successfully'}), 200
     except Error as e:
@@ -812,7 +812,7 @@ def all_trips():
 def get_accommodation_choices():
     try:
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.callproc('GetAccommodationChoicesByTravelDuration')
+        cursor.callproc('get_accommodation_choices_by_travel_duration')
         results = cursor.fetchall()
         return jsonify({'accommodations': results}), 200
     except Error as e:
@@ -828,7 +828,7 @@ def average_activity_cost_by_country():
         cursor = connection.cursor(pymysql.cursors.DictCursor)
         cursor.callproc('GetAverageActivityCostByCountry')
         results = cursor.fetchall()
-        return jsonify({'average_activity_costs': results}), 200
+        return jsonify({'get_average_activity_cost_by_country': results}), 200
     except Error as e:
         print(f"Database error: {e}")
         return jsonify({'error': str(e)}), 500
@@ -840,7 +840,7 @@ def average_activity_cost_by_country():
 def common_packing_items():
     try:
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.callproc('GetCommonPackingItems')
+        cursor.callproc('get_common_packing_items')
         results = cursor.fetchall()
         return jsonify({'common_packing_items': results}), 200
     except Error as e:
@@ -854,7 +854,7 @@ def common_packing_items():
 def destination_popularity_over_time():
     try:
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.callproc('GetDestinationPopularityOverTime')
+        cursor.callproc('get_destination_popularity_over_time')
         results = cursor.fetchall()
         return jsonify({'destination_popularity': results}), 200
     except Error as e:
