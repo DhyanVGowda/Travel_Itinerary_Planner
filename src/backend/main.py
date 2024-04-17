@@ -126,7 +126,7 @@ def create_trip_details():
     trip_name = data.get('trip_name')
     start_date = data.get('start_date')
     end_date = data.get('end_date')
-    status = data.get('status')
+    status = data.get('trip_status')
 
     try:
         with connection.cursor() as cursor:
@@ -540,7 +540,7 @@ def get_items_by_trip_ids():
         cursor = connection.cursor()
         sql = ("SELECT tri.trip_id, e.* "
                "FROM Trip_Requires_Item tri "
-               "INNER JOIN EssentialPackingItems e "
+               "INNER JOIN essential_packing_item e "
                "ON tri.item_id = e.item_id "
                f"WHERE tri.trip_id IN ({', '.join(map(str, trip_ids))});")
         cursor.execute(sql)

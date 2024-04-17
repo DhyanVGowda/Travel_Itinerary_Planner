@@ -202,7 +202,7 @@ def update_user_info(user_info, email_id):
 
 def update_destination_info(destination_update_data):
     # You need to implement this function according to your API's requirements
-    response = requests.put(f"{FLASK_SERVER_URL}/updateDestination/{destination_update_data['destination_id']}", json=destination_update_data)
+    response = requests.put(f"{FLASK_SERVER_URL}/updateDestination/{destination_update_data['trip_id']}/{destination_update_data['destination_id']}", json=destination_update_data)
     return response.ok
 
 def fetch_all_trips():
@@ -213,3 +213,36 @@ def fetch_all_trips():
         return trips_df, None
     else:
         return pd.DataFrame(), "Failed to fetch all trips."
+
+def signup_user(signup_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/signup", json=signup_data)
+    return response
+
+
+def login_user(login_data):
+    response = requests.post(f"{FLASK_SERVER_URL}/login", json=login_data)
+    return response
+
+
+def fetch_trips(email):
+    response = requests.get(f"{FLASK_SERVER_URL}/trips/{email}")
+    if response.status_code == 200:
+        # The JSON response is expected to be a dictionary with 'trips' as a key,
+        # where 'trips' is a list of dictionaries representing each trip.
+        trips_data = response.json().get("trips", [])  # Default to an empty list if "trips" key is absent
+        trips_df = pd.DataFrame(trips_data)
+        if not trips_df.empty:
+            trips_df['start_date'] = pd.to_datetime(trips_df['start_date'], format='mixed')
+            trips_df['end_date'] = pd.to_datetime(trips_df['end_date'], format='mixed')
+
+            trips_df_1 = pd.DataFrame()
+            trips_df_1['Trip Id'] = trips_df['trip_id']
+            trips_df_1['Trip Name'] = trips_df['trip_name']
+            trips_df_1['Trip Status'] = trips_df['trip_status']
+            trips_df_1['Start Date'] = trips_df['start_date'].dt.strftime('%Y-%b-%d')
+            trips_df_1['End Date'] = trips_df['end_date'].dt.strftime('%Y-%b-%d')
+            return trips_df_1, None  # Convert the list of dictionaries to a DataFrame
+        else:
+            return pd.DataFrame(), "No Trips found."
+    else:
+        return pd.DataFrame(), "Failed to fetch trips."  # Return an empty DataFrame and an error message

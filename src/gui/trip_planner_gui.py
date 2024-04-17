@@ -1,49 +1,24 @@
+import re
 import time
 from datetime import datetime
-from io import BytesIO
 
-import plotly.express as px
-
-import numpy as np
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 from streamlit_option_menu import option_menu
 
 from rest_api import *
 
 
-def signup_user(signup_data):
-    response = requests.post(f"{FLASK_SERVER_URL}/signup", json=signup_data)
-    return response
+def is_valid_us_mobile_number(number):
+    # Regular expression for a 10-digit US mobile number in various formats
+    pattern = r"^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$"
+    return bool(re.match(pattern, number))
 
 
-def login_user(login_data):
-    response = requests.post(f"{FLASK_SERVER_URL}/login", json=login_data)
-    return response
-
-
-def fetch_trips(email):
-    response = requests.get(f"{FLASK_SERVER_URL}/trips/{email}")
-    if response.status_code == 200:
-        # The JSON response is expected to be a dictionary with 'trips' as a key,
-        # where 'trips' is a list of dictionaries representing each trip.
-        trips_data = response.json().get("trips", [])  # Default to an empty list if "trips" key is absent
-        trips_df = pd.DataFrame(trips_data)
-        if not trips_df.empty:
-            trips_df['start_date'] = pd.to_datetime(trips_df['start_date'], format='mixed')
-            trips_df['end_date'] = pd.to_datetime(trips_df['end_date'], format='mixed')
-
-            trips_df_1 = pd.DataFrame()
-            trips_df_1['Trip Id'] = trips_df['trip_id']
-            trips_df_1['Trip Name'] = trips_df['trip_name']
-            trips_df_1['Trip Status'] = trips_df['trip_status']
-            trips_df_1['Start Date'] = trips_df['start_date'].dt.strftime('%Y-%b-%d')
-            trips_df_1['End Date'] = trips_df['end_date'].dt.strftime('%Y-%b-%d')
-            return trips_df_1, None  # Convert the list of dictionaries to a DataFrame
-        else:
-            return pd.DataFrame(), "No Trips found."
-    else:
-        return pd.DataFrame(), "Failed to fetch trips."  # Return an empty DataFrame and an error message
+def is_valid_email(email):
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return bool(re.match(pattern, email))
 
 
 def signup_page():
@@ -53,7 +28,7 @@ def signup_page():
         mobile = st.text_input('Mobile')
         fname = st.text_input('First Name')
         lname = st.text_input('Last Name')
-        gen = st.text_input('Gender')
+        gen = st.selectbox('Gender', ['Male', 'Female', 'Other', 'Prefer not to say'])
         dob = st.date_input('Date of Birth', None)
         unit = st.text_input('Unit')
         street = st.text_input('Street')
@@ -66,6 +41,10 @@ def signup_page():
         if signup_button:
             if not email or not mobile or not fname:
                 st.error('Email, mobile, and first name are compulsory')
+            elif not is_valid_us_mobile_number(mobile):
+                st.error('Please enter a valid Phone number')
+            elif not is_valid_email(email):
+                st.error('Please enter a valid email address')
             else:
                 signup_data = {
                     'email': email,
@@ -83,7 +62,7 @@ def signup_page():
                 }
                 response = signup_user(signup_data)
                 if response.status_code == 201:
-                    st.success('Signup successful')
+                    st.success('Signup successful. You can log in to your account.')
                 else:
                     st.error('Signup failed. Error: ' + response.json().get('error', ''))
 
@@ -107,6 +86,7 @@ def login_page():
                 st.rerun()  # This reruns the script to switch to the trips display
             else:
                 st.error('Login failed. Incorrect email or password.')
+
 
 def display_trips():
     st.subheader("Your Trips")
@@ -165,12 +145,12 @@ def display_trips():
                     trip_name = st.text_input('Trip Name', value=selected_trip['Trip Name'], key='trip_name')
                     if not pd.isna(selected_trip['Start Date']):
                         start_date = st.date_input('Start Date', value=pd.to_datetime(selected_trip['Start Date']),
-                                               key='start_date')
-                    else :
-                        start_date = st.date_input('Start Date',key='start_date')
+                                                   key='start_date')
+                    else:
+                        start_date = st.date_input('Start Date', key='start_date')
                     if not pd.isna(selected_trip['End Date']):
                         end_date = st.date_input('End Date', value=pd.to_datetime(selected_trip['End Date']),
-                                                   key='end_date')
+                                                 key='end_date')
                     else:
                         end_date = st.date_input('End Date', key='end_date')
                     status = st.selectbox('Status',
@@ -320,7 +300,6 @@ def edit_user_info(user_info):
 
 
 def construct_user_update_request(updated_user_info, user_email):
-
     user_update_request = {
         "first_name": updated_user_info[2],
         "last_name": updated_user_info[3],
@@ -334,6 +313,7 @@ def construct_user_update_request(updated_user_info, user_email):
         "email": user_email
     }
     return user_update_request
+
 
 def add_hotel_page(trip_ids):
     destinations_df, error = get_destinations(trip_ids)
@@ -509,7 +489,12 @@ def display_destinations():
             trip_ids = trips_df['Trip Id'].tolist()
             destinations_df, error = get_destinations(trip_ids)
             if not destinations_df.empty:
-                st.dataframe(destinations_df)
+                selected_columns_df = destinations_df[['trip_id', 'destination_id', 'destination_name']]
+
+                remaining_columns_df = destinations_df.drop(columns=['trip_id', 'destination_id', 'destination_name'])
+
+                modified_destinations_df = pd.concat([selected_columns_df, remaining_columns_df], axis=1)
+                st.dataframe(modified_destinations_df)
 
                 with st.expander("Delete Destinations"):
                     trip_options = list(destinations_df['trip_id'])
@@ -545,7 +530,7 @@ def display_destinations():
                 arrival_date = st.date_input('Arrival Date', None)
                 departure_date = st.date_input('Departure Date', None)
                 transport_mode = st.text_input('Transport Mode')
-                travel_duration = st.text_input('Travel Duration')
+                travel_duration = st.text_input('Travel Duration (in hours)')
                 submit_button = st.form_submit_button('Add Destination')
                 if submit_button:
                     if not destination_name or not country:
@@ -557,7 +542,7 @@ def display_destinations():
                             "country": country,
                             "arrival_date": arrival_date.isoformat() if arrival_date else None,
                             "departure_date": departure_date.isoformat() if departure_date else None,
-                            "transportation_mode": transport_mode,
+                            "transport_mode": transport_mode,
                             "travel_duration": travel_duration
                         }
                         response = add_destination_to_trip(destination_data)
@@ -578,16 +563,28 @@ def edit_destination_info(destination_info):
     # Create input fields for editable fields
     new_destination_name = st.text_input("New Destination Name", value=destination_info['destination_name'])
     new_country = st.text_input("New Country", value=destination_info['country'])
-    new_arrival_date = st.date_input("New Arrival Date", value=pd.to_datetime(destination_info['arrival_date']), key='new_arrival_date')
-    new_departure_date = st.date_input("New Departure Date", value=pd.to_datetime(destination_info['departure_date']), key='new_departure_date')
+    new_arrival_date = st.date_input("New Arrival Date", value=pd.to_datetime(destination_info['arrival_date']),
+                                     key='new_arrival_date')
+    new_departure_date = st.date_input("New Departure Date", value=pd.to_datetime(destination_info['departure_date']),
+                                       key='new_departure_date')
     new_transport_mode = st.text_input("New Transport Mode", value=destination_info['transportation_mode'])
-    new_travel_duration = st.text_input("New Travel Duration", value=destination_info['travel_duration'])
 
-    if new_travel_duration:
-        # Parse the string to a time object
-        travel_duration_obj = datetime.strptime(new_travel_duration, '%H:%M:%S').time()
+    # for column_name, column_data in destination_info.items():
+    #     try:
+    #         # Attempt to access the first element
+    #         first_element = column_data.iloc[0]
+    #         print(f"Column '{column_name}' has data type: {type(first_element)}")
+    #     except AttributeError:
+    #         # Skip columns with non-iterable data types
+    #         print(f"Column '{column_name}' contains non-iterable data type: {type(column_data)}")
+
+    if destination_info['travel_duration'] is None or destination_info['travel_duration'] == '':
+        new_travel_duration = st.time_input("New Travel Duration", None)
     else:
-        travel_duration_obj = None
+        # Convert string to time object if not None or empty
+        new_travel_duration = datetime.strptime(destination_info['travel_duration'], '%H:%M:%S').time()
+        # Provide the time object as the default value
+        new_travel_duration = st.time_input("New Travel Duration", value=new_travel_duration)
 
     # Button to submit changes
     if st.button("Submit Update for Destination"):
@@ -599,8 +596,8 @@ def edit_destination_info(destination_info):
             'country': new_country,
             'arrival_date': new_arrival_date.isoformat() if new_arrival_date else None,
             'departure_date': new_departure_date.isoformat() if new_departure_date else None,
-            'transportation_mode': new_transport_mode,
-            # 'travel_duration': travel_duration_obj.strftime('%H:%M:%S') if travel_duration_obj else None,
+            'transport_mode': new_transport_mode,
+            'travel_duration': new_travel_duration.strftime('%H:%M:%S') if new_travel_duration else None,
         }
 
         # Call update_destination_info function
@@ -611,6 +608,7 @@ def edit_destination_info(destination_info):
             st.experimental_rerun()
         else:
             st.error("Failed to update destination information.")
+
 
 def display_activities():
     st.subheader("User's Activity Data")
@@ -747,32 +745,6 @@ def display_expenses():
                 expenses_df = pd.DataFrame(expenses)
                 st.dataframe(expenses_df)
 
-                with st.expander("Add Expense"):
-                    with st.form("add_expense_form", clear_on_submit=True):
-                        expense_date = st.date_input("Date")
-                        expense_category = st.text_input("Category")
-                        expense_description = st.text_area("Description")
-                        amount = st.number_input("Amount", min_value=0.0, format='%f')
-                        currency = st.text_input("Currency", value="USD")
-                        submit_button = st.form_submit_button("Add Expense")
-
-                        if submit_button:
-                            expense_data = {
-                                "expense_date": expense_date.isoformat(),
-                                "expense_category": expense_category,
-                                "expense_description": expense_description,
-                                "amount": amount,
-                                "currency": currency,
-                                "trip_id": selected_trip_id
-                            }
-                            response = create_expense(expense_data)
-                            if response.status_code == 201:
-                                st.success("Expense added successfully.")
-                                time.sleep(1)
-                                st.experimental_rerun()
-                            else:
-                                st.error(f"Failed to add expense. Error: {response.json().get('error')}")
-
                 with st.expander("Delete Expense"):
                     expense_ids = expenses_df['expense_id'].tolist()
                     selected_expense_id = st.selectbox("Select an Expense ID to delete", expense_ids)
@@ -786,6 +758,32 @@ def display_expenses():
                             st.error(f"Failed to delete expense. Error: {response.json().get('error')}")
             else:
                 st.error(error or "No expenses found for the selected trip.")
+
+            with st.expander("Add Expense"):
+                with st.form("add_expense_form", clear_on_submit=True):
+                    expense_date = st.date_input("Date")
+                    expense_category = st.text_input("Category")
+                    expense_description = st.text_area("Description")
+                    amount = st.number_input("Amount", min_value=0.0, format='%f')
+                    currency = st.text_input("Currency", value="USD")
+                    submit_button = st.form_submit_button("Add Expense")
+
+                    if submit_button:
+                        expense_data = {
+                            "expense_date": expense_date.isoformat(),
+                            "expense_category": expense_category,
+                            "expense_description": expense_description,
+                            "amount": amount,
+                            "currency": currency,
+                            "trip_id": selected_trip_id
+                        }
+                        response = create_expense(expense_data)
+                        if response.status_code == 201:
+                            st.success("Expense added successfully.")
+                            time.sleep(1)
+                            st.experimental_rerun()
+                        else:
+                            st.error(f"Failed to add expense. Error: {response.json().get('error')}")
 
     else:
         st.error("Please log in to view and manage expenses.")
@@ -808,7 +806,7 @@ def main():
         icons.remove("person-plus")
         icons.remove("door-open")
         options = ["Home", "Planned Trips", "Destinations", "Activities", "Accommodations", "Expenses",
-                   "Essential Items","All Trips", "Logout"]
+                   "Essential Items", "All Trips", "Logout"]
         icons = ["house", "map", "globe", "building", "compass", "credit-card", "list", "clipboard-data",
                  "box-arrow-right"]
 
@@ -826,7 +824,7 @@ def main():
         signup_page()
     elif selected == "Login":
         login_page()
-    elif selected == "Your Trips" and 'user_email' in st.session_state:
+    elif selected == "Planned Trips" and 'user_email' in st.session_state:
         display_trips()
     elif selected == "Destinations" and 'user_email' in st.session_state:
         display_destinations()
@@ -949,7 +947,7 @@ def add_other_activity_form(destination_options):
         activity_location = st.text_input('Activity Location')
         activity_description = st.text_area('Activity Description')
         activity_date = st.date_input('Activity Date', None)
-        start_time = st.time_input('Start Time', None)
+        start_time = st.time_input('`Start Time`', None)
         end_time = st.time_input('End Time', None)
         cost = st.number_input('Cost', step=10)
         submit_button = st.form_submit_button('Add Activity')
@@ -972,6 +970,7 @@ def add_other_activity_form(destination_options):
             else:
                 st.error('Failed to add activity.')
 
+
 def display_essential_items():
     st.subheader("Essential Items")
     if 'user_email' in st.session_state:
@@ -984,7 +983,6 @@ def display_essential_items():
             if essential_items:
                 items_df = pd.DataFrame(essential_items)
                 st.dataframe(items_df)
-
 
                 with st.expander("Delete Essential Item"):
                     item_ids = items_df['item_id'].tolist()
@@ -1166,8 +1164,5 @@ def display_all_trips_with_procedures():
         st.error("No data available for visualizations.")
 
 
-
-
 if __name__ == "__main__":
     main()
-
