@@ -866,7 +866,7 @@ def destination_popularity_over_time():
 def traveler_trip_counts_and_expenses():
     try:
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.callproc('GetTravelerTripCountsAndExpenses')
+        cursor.callproc('get_traveler_trip_counts_and_expenses')
         results = cursor.fetchall()
         return jsonify({'traveler_trips_and_expenses': results}), 200
     except Error as e:
