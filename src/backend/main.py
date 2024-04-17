@@ -796,8 +796,6 @@ def all_trips():
             a.activity_location AS 'Activity Location', 
             a.activity_description AS 'Activity Description', 
             a.activity_date AS 'Activity Date',
-            a.start_time AS 'Start Time', 
-            a.end_time AS 'End Time', 
             a.cost AS 'Cost'
         FROM Trip t
         JOIN Trip_Has_Destination thd ON t.trip_id = thd.trip_id
@@ -829,7 +827,7 @@ def get_accommodation_choices():
 def average_activity_cost_by_country():
     try:
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.callproc('GetAverageActivityCostByCountry')
+        cursor.callproc('get_average_activity_cost_by_country')
         results = cursor.fetchall()
         return jsonify({'get_average_activity_cost_by_country': results}), 200
     except Error as e:

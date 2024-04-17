@@ -419,10 +419,10 @@ END //
 
 CREATE PROCEDURE get_common_packing_items()
 BEGIN
-    SELECT EssentialPackingItems.item_name, COUNT(*) AS item_count
-    FROM EssentialPackingItems
-    JOIN Trip_Requires_Item ON EssentialPackingItems.item_id = Trip_Requires_Item.item_id
-    GROUP BY EssentialPackingItems.item_name
+    SELECT essential_packing_item.item_name, COUNT(*) AS item_count
+    FROM essential_packing_item
+    JOIN Trip_Requires_Item ON essential_packing_item.item_id = Trip_Requires_Item.item_id
+    GROUP BY essential_packing_item.item_name
     ORDER BY item_count DESC
     LIMIT 10;
 END //
