@@ -264,9 +264,12 @@ def show_user_info():
             st.sidebar.markdown(f"**Name:** {user_info[2]} {user_info[3]}")  # Name in bold
             st.sidebar.markdown(f"**Email:** {user_info[0]}")  # Index for email
             st.sidebar.write(f"**Mobile:** {user_info[1]}")  # Index for mobile
-            st.sidebar.write(f"**Address:** {user_info[7]} {user_info[8]}")  # Index for unit and street
+            st.sidebar.write(f"**Unit No.:** {user_info[6]}")  # Index for unit and street
+            st.sidebar.write(f"**Street Name:** {user_info[7]}")  # Index for unit and street
+            st.sidebar.write(f"**Street Number:** {user_info[8]}")  # Index for unit and street
             st.sidebar.write(f"**City:** {user_info[9]}")  # Index for city
             st.sidebar.write(f"**State:** {user_info[10]}")  # Index for state
+            st.sidebar.write(f"**Zipcode:** {user_info[11]}")  # Index for state
         else:
             # If there is no user info or an empty response, display an error message
             st.sidebar.error("Failed to load traveler information.")
@@ -282,9 +285,12 @@ def edit_user_info(user_info):
             # Create input fields for editable fields
             new_first_name = st.text_input("First Name", value=user_info[2])
             new_last_name = st.text_input("Last Name", value=user_info[3])
-            new_address = st.text_input("New Address", value=user_info[7])
+            new_unit = st.text_input("New Unit No.", value=user_info[6])
+            new_street_name = st.text_input("New Street Name", value=user_info[7])
+            new_street_number = st.text_input("New Street No.", value=user_info[8])
             new_city = st.text_input("New City", value=user_info[9])
             new_state = st.text_input("New State", value=user_info[10])
+            new_zip = st.text_input("New zipcode", value=user_info[11])
 
             # Button to submit changes
             if st.button("Submit Changes"):
@@ -293,9 +299,12 @@ def edit_user_info(user_info):
                 updated_user_info = user_info.copy()
                 updated_user_info[2] = new_first_name
                 updated_user_info[3] = new_last_name
-                updated_user_info[7] = new_address
+                updated_user_info[6] = new_unit
+                updated_user_info[7] = new_street_name
+                updated_user_info[8] = new_street_number
                 updated_user_info[9] = new_city
                 updated_user_info[10] = new_state
+                updated_user_info[11] = new_zip
 
                 # Call update_user_info function
                 user_email = st.session_state['user_email']
@@ -304,6 +313,7 @@ def edit_user_info(user_info):
                 response = update_user_info(user_update_request, st.session_state['user_email'])
                 if response:
                     st.success("User information updated successfully.")
+                    st.experimental_set_query_params()
                 else:
                     st.error("Failed to update user information.")
 
@@ -495,7 +505,7 @@ def display_destinations():
     if 'user_email' in st.session_state:
         trips_df, error = fetch_trips(st.session_state['user_email'])
         if not trips_df.empty:
-            trip_ids = trips_df['Trip Id'].tolist()  # Assuming 'Trip Id' is the correct column name
+            trip_ids = trips_df['Trip Id'].tolist()
             destinations_df, error = get_destinations(trip_ids)
             if not destinations_df.empty:
                 st.dataframe(destinations_df)
@@ -514,6 +524,7 @@ def display_destinations():
                         else:
                             st.error('Failed to delete the Destination.' + response.json().get('error'))
 
+                # "Update Destination" section moved outside of the "Delete Destinations" expander
                 with st.expander("Update Destination"):
                     trip_options_update = list(destinations_df['trip_id'])
                     selected_trip_id_update = st.selectbox('Select Trip Id to update', trip_options_update)
@@ -545,7 +556,7 @@ def display_destinations():
                             "country": country,
                             "arrival_date": arrival_date.isoformat() if arrival_date else None,
                             "departure_date": departure_date.isoformat() if departure_date else None,
-                            "transport_mode": transport_mode,
+                            "transportation_mode": transport_mode,
                             "travel_duration": travel_duration
                         }
                         response = add_destination_to_trip(destination_data)
@@ -562,36 +573,43 @@ def display_destinations():
 
 
 def edit_destination_info(destination_info):
-    with st.expander('Update Destination Information'):
-        st.subheader("Update Destination Info")
-        # Create input fields for editable fields
-        new_destination_name = st.text_input("New Destination Name", value=destination_info['destination_name'])
-        new_country = st.text_input("New Country", value=destination_info['country'])
-        new_arrival_date = st.date_input("New Arrival Date", value=pd.to_datetime(destination_info['arrival_date']), key='new_arrival_date')
-        new_departure_date = st.date_input("New Departure Date", value=pd.to_datetime(destination_info['departure_date']), key='new_departure_date')
-        new_transport_mode = st.text_input("New Transport Mode", value=destination_info['transport_mode'])
-        new_travel_duration = st.text_input("New Travel Duration", value=destination_info['travel_duration'])
+    st.subheader("Update Destination Info")
+    # Create input fields for editable fields
+    new_destination_name = st.text_input("New Destination Name", value=destination_info['destination_name'])
+    new_country = st.text_input("New Country", value=destination_info['country'])
+    new_arrival_date = st.date_input("New Arrival Date", value=pd.to_datetime(destination_info['arrival_date']), key='new_arrival_date')
+    new_departure_date = st.date_input("New Departure Date", value=pd.to_datetime(destination_info['departure_date']), key='new_departure_date')
+    new_transport_mode = st.text_input("New Transport Mode", value=destination_info['transportation_mode'])
+    new_travel_duration = st.text_input("New Travel Duration", value=destination_info['travel_duration'])
 
-        # Button to submit changes
-        if st.button("Submit Changes"):
-            # Construct updated destination info
-            updated_destination_info = {
-                'destination_id': destination_info['destination_id'],
-                'trip_id': destination_info['trip_id'],
-                'destination_name': new_destination_name,
-                'country': new_country,
-                'arrival_date': new_arrival_date.isoformat() if new_arrival_date else None,
-                'departure_date': new_departure_date.isoformat() if new_departure_date else None,
-                'transport_mode': new_transport_mode,
-                'travel_duration': new_travel_duration
-            }
+    if new_travel_duration:
+        # Parse the string to a time object
+        travel_duration_obj = datetime.strptime(new_travel_duration, '%H:%M:%S').time()
+    else:
+        travel_duration_obj = None
 
-            # Call update_destination_info function
-            response = update_destination_info(updated_destination_info)
-            if response:
-                st.success("Destination information updated successfully.")
-            else:
-                st.error("Failed to update destination information.")
+    # Button to submit changes
+    if st.button("Submit Update for Destination"):
+        # Construct updated destination info
+        updated_destination_info = {
+            'destination_id': str(destination_info['destination_id']),
+            'trip_id': str(destination_info['trip_id']),
+            'destination_name': new_destination_name,
+            'country': new_country,
+            'arrival_date': new_arrival_date.isoformat() if new_arrival_date else None,
+            'departure_date': new_departure_date.isoformat() if new_departure_date else None,
+            'transportation_mode': new_transport_mode,
+            # 'travel_duration': travel_duration_obj.strftime('%H:%M:%S') if travel_duration_obj else None,
+        }
+
+        # Call update_destination_info function
+        response = update_destination_info(updated_destination_info)
+        if response:
+            st.success("Destination information updated successfully.")
+            time.sleep(1);
+            st.experimental_rerun()
+        else:
+            st.error("Failed to update destination information.")
 
 def display_activities():
     st.subheader("User's Activity Data")
