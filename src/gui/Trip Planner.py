@@ -2,6 +2,8 @@ import time
 from datetime import datetime
 from io import BytesIO
 
+import plotly.express as px
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -805,8 +807,8 @@ def main():
         icons.remove("person-plus")
         icons.remove("door-open")
         options = ["Home", "Your Trips", "Destinations", "Activities", "Accommodations", "Expenses",
-                   "Essential Items", "Logout"]
-        icons = ["house", "map", "globe", "building", "compass", "credit-card", "list",
+                   "Essential Items","All Trips", "Logout"]
+        icons = ["house", "map", "globe", "building", "compass", "credit-card", "list", "clipboard-data",
                  "box-arrow-right"]
 
     selected = option_menu("Main Menu", options, icons=icons, menu_icon="cast", default_index=0,
@@ -832,6 +834,9 @@ def main():
         display_expenses()
     elif selected == "Essential Items" and 'user_email' in st.session_state:
         display_essential_items()
+    elif selected == "All Trips":
+        display_all_trips_with_procedures()
+        display_all_trips_without_procedures()
     elif selected == "Logout":
         for key in ['user_email', 'user_info']:
             if key in st.session_state:
@@ -1011,5 +1016,154 @@ def display_essential_items():
         st.error("Please log in to view and manage essential items.")
 
 
+def display_all_trips_without_procedures():
+    trips_df, error = fetch_all_trips()
+    if not trips_df.empty:
+        destination_counts = trips_df['Destination Name'].value_counts()
+        fig_destinations = px.bar(
+            destination_counts,
+            title='Most Visited Destinations',
+            labels={'value': 'Number of Visits', 'index': 'Destination'}
+        )
+        st.plotly_chart(fig_destinations)
+        activity_counts = trips_df['Activity Description'].value_counts()
+        fig_activities = px.pie(
+            activity_counts,
+            values='Activity Description',
+            names=activity_counts.index,
+            title='Activity Popularity'
+        )
+        st.plotly_chart(fig_activities)
+        fig_cost_dist = px.box(
+            trips_df,
+            x='Destination Name',
+            y='Cost',
+            color='Destination Name',
+            title='Cost Distribution by Destination'
+        )
+        st.plotly_chart(fig_cost_dist)
+        activities_per_destination = trips_df.groupby('Destination Name').size().reset_index(name='Activities Count')
+        fig_activities_destination = px.scatter(
+            activities_per_destination,
+            x='Destination Name',
+            y='Activities Count',
+            size='Activities Count',
+            title='Number of Activities per Destination'
+        )
+        trip_status_counts = trips_df['Trip Status'].value_counts().reset_index()
+        trip_status_counts.columns = ['Trip Status', 'Count']
+        fig_status_counts = px.bar(
+            trip_status_counts,
+            x='Trip Status',
+            y='Count',
+            title='Count of Trips by Status'
+        )
+        st.plotly_chart(fig_status_counts)
+        st.plotly_chart(fig_activities_destination)
+        fig_activity_costs = px.histogram(
+            trips_df,
+            x='Cost',
+            title='Distribution of Activity Costs'
+        )
+        st.plotly_chart(fig_activity_costs)
+        trip_status_fig = px.bar(
+            trips_df['Trip Status'].value_counts().reset_index(),
+            x='index',
+            y='Trip Status',
+            title='Count of Trips by Status',
+            labels={'index': 'Trip Status', 'Trip Status': 'Count'}
+        )
+        st.plotly_chart(trip_status_fig)
+        st.subheader("Trip Details")
+        st.dataframe(trips_df)
+    else:
+        st.error(error or "No trips available.")
+
+
+def display_all_trips_with_procedures():
+    st.subheader("All Trips Overview")
+
+    average_cost_url = "http://127.0.0.1:8080/averageActivityCostByCountry"
+    packing_items_url = "http://127.0.0.1:8080/commonPackingItems"
+    popularity_url = "http://127.0.0.1:8080/destinationPopularityOverTime"
+    expenses_url = "http://127.0.0.1:8080/travelerTripCountsAndExpenses"
+    accommodation_choices_url = "http://127.0.0.1:8080/getAccommodationChoices"
+
+    average_cost_response = requests.get(average_cost_url).json()
+    packing_items_response = requests.get(packing_items_url).json()
+    popularity_response = requests.get(popularity_url).json()
+    expenses_response = requests.get(expenses_url).json()
+    accommodation_choices_response = requests.get(accommodation_choices_url).json()
+
+    average_cost_df = pd.DataFrame(average_cost_response['average_activity_costs'])
+    packing_items_df = pd.DataFrame(packing_items_response['common_packing_items'])
+    popularity_df = pd.DataFrame(popularity_response['destination_popularity'])
+    expenses_df = pd.DataFrame(expenses_response['traveler_trips_and_expenses'])
+    accommodation_choices_df = pd.DataFrame(accommodation_choices_response['accommodations'])
+
+    if not average_cost_df.empty:
+        fig_avg_cost = px.bar(
+            average_cost_df,
+            x='country',
+            y='average_cost',
+            title='Average Activity Cost by Country'
+        )
+        st.plotly_chart(fig_avg_cost)
+
+    if not packing_items_df.empty:
+        fig_packing_items = px.bar(
+            packing_items_df,
+            x='item_name',
+            y='item_count',
+            title='Most Common Packing Items'
+        )
+        st.plotly_chart(fig_packing_items)
+
+    if not popularity_df.empty:
+        fig_popularity = px.line(
+            popularity_df,
+            x='month',
+            y='visit_count',
+            color='destination_name',
+            title='Destination Popularity Over Time'
+        )
+        st.plotly_chart(fig_popularity)
+
+    if not expenses_df.empty:
+        expenses_df['total_trips'] = expenses_df['total_trips'].astype(float)
+        expenses_df['total_expenses'] = expenses_df['total_expenses'].astype(float)
+
+        fig_expenses = px.bar(
+            expenses_df,
+            x='email_id',
+            y=['total_trips', 'total_expenses'],
+            title='Traveler Trip Counts and Total Expenses',
+            barmode='group'
+        )
+        st.plotly_chart(fig_expenses)
+
+    if not accommodation_choices_df.empty:
+        accommodation_choices_df['duration'] = pd.to_numeric(accommodation_choices_df['duration'], errors='coerce')
+        accommodation_choices_df['booking_count'] = pd.to_numeric(accommodation_choices_df['booking_count'],
+                                                                  errors='coerce')
+
+        fig_accommodation_choices = px.scatter(
+            accommodation_choices_df,
+            x='accommodation_name',
+            y='duration',
+            size='booking_count',
+            color='accommodation_name',
+            title='Accommodation Choices by Travel Duration',
+            labels={'duration': 'Duration (days)', 'booking_count': 'Number of Bookings'}
+        )
+        st.plotly_chart(fig_accommodation_choices)
+
+    if average_cost_df.empty and packing_items_df.empty and popularity_df.empty and expenses_df.empty and accommodation_choices_df.empty:
+        st.error("No data available for visualizations.")
+
+
+
+
 if __name__ == "__main__":
     main()
+

@@ -418,3 +418,77 @@ BEGIN
     WHERE destination_id = p_destination_id;
 END //
 DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetTravelerTripCountsAndExpenses()
+BEGIN
+    SELECT Traveller.email_id, Traveller.first_name, Traveller.last_name,
+           COUNT(DISTINCT Trip.trip_id) AS total_trips,
+           SUM(Expense.amount) AS total_expenses
+    FROM Traveller
+    JOIN Traveller_Plans_Trip ON Traveller.email_id = Traveller_Plans_Trip.email_id
+    JOIN Trip ON Traveller_Plans_Trip.trip_id = Trip.trip_id
+    LEFT JOIN Expense ON Trip.trip_id = Expense.trip_id
+    GROUP BY Traveller.email_id;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetDestinationPopularityOverTime()
+BEGIN
+    SELECT Destination.destination_name, YEAR(Trip.start_date) AS year, MONTH(Trip.start_date) AS month,
+           COUNT(*) AS visit_count
+    FROM Destination
+    JOIN Trip_Has_Destination ON Destination.destination_id = Trip_Has_Destination.destination_id
+    JOIN Trip ON Trip_Has_Destination.trip_id = Trip.trip_id
+    WHERE Trip.trip_status = 'Completed'
+    GROUP BY Destination.destination_name, YEAR(Trip.start_date), MONTH(Trip.start_date)
+    ORDER BY Destination.destination_name, year, month;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetCommonPackingItems()
+BEGIN
+    SELECT EssentialPackingItems.item_name, COUNT(*) AS item_count
+    FROM EssentialPackingItems
+    JOIN Trip_Requires_Item ON EssentialPackingItems.item_id = Trip_Requires_Item.item_id
+    GROUP BY EssentialPackingItems.item_name
+    ORDER BY item_count DESC
+    LIMIT 10;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetAverageActivityCostByCountry()
+BEGIN
+    SELECT Destination.country, AVG(Activity.cost) AS average_cost
+    FROM Activity
+    JOIN Destination ON Activity.destination_id = Destination.destination_id
+    GROUP BY Destination.country;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetAccommodationChoicesByTravelDuration()
+BEGIN
+    SELECT
+        Accommodation_Hotel.accommodation_name,
+        DATEDIFF(Accommodation_Hotel.checkout_date, Accommodation_Hotel.checkin_date) AS duration,
+        COUNT(*) AS booking_count
+    FROM Accommodation_Hotel
+    GROUP BY Accommodation_Hotel.accommodation_name, duration
+    ORDER BY duration DESC, booking_count DESC;
+END //
+
+DELIMITER ;
+

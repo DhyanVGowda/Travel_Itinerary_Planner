@@ -793,6 +793,106 @@ def update_destination(destination_id):
     finally:
         cursor.close()
 
+@app.route('/allTrips', methods=['GET'])
+def all_trips():
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT 
+            t.trip_name AS 'Trip Name', 
+            t.start_date AS 'Start Date', 
+            t.end_date AS 'End Date', 
+            t.trip_status AS 'Trip Status',
+            d.destination_name AS 'Destination Name', 
+            d.country AS 'Country', 
+            d.arrival_date AS 'Arrival Date', 
+            d.departure_date AS 'Departure Date',
+            a.activity_location AS 'Activity Location', 
+            a.activity_description AS 'Activity Description', 
+            a.activity_date AS 'Activity Date',
+            a.start_time AS 'Start Time', 
+            a.end_time AS 'End Time', 
+            a.cost AS 'Cost'
+        FROM Trip t
+        JOIN Trip_Has_Destination thd ON t.trip_id = thd.trip_id
+        JOIN Destination d ON thd.destination_id = d.destination_id
+        JOIN Activity a ON d.destination_id = a.destination_id;
+    """)
+    trips = cursor.fetchall()
+    cursor.close()
+    columns = [desc[0] for desc in cursor.description]
+    trip_list = [dict(zip(columns, trip)) for trip in trips]
+    return jsonify(trip_list)
+
+
+@app.route('/getAccommodationChoices', methods=['GET'])
+def get_accommodation_choices():
+    try:
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.callproc('GetAccommodationChoicesByTravelDuration')
+        results = cursor.fetchall()
+        return jsonify({'accommodations': results}), 200
+    except Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/averageActivityCostByCountry', methods=['GET'])
+def average_activity_cost_by_country():
+    try:
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.callproc('GetAverageActivityCostByCountry')
+        results = cursor.fetchall()
+        return jsonify({'average_activity_costs': results}), 200
+    except Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/commonPackingItems', methods=['GET'])
+def common_packing_items():
+    try:
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.callproc('GetCommonPackingItems')
+        results = cursor.fetchall()
+        return jsonify({'common_packing_items': results}), 200
+    except Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/destinationPopularityOverTime', methods=['GET'])
+def destination_popularity_over_time():
+    try:
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.callproc('GetDestinationPopularityOverTime')
+        results = cursor.fetchall()
+        return jsonify({'destination_popularity': results}), 200
+    except Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+@app.route('/travelerTripCountsAndExpenses', methods=['GET'])
+def traveler_trip_counts_and_expenses():
+    try:
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.callproc('GetTravelerTripCountsAndExpenses')
+        results = cursor.fetchall()
+        return jsonify({'traveler_trips_and_expenses': results}), 200
+    except Error as e:
+        print(f"Database error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
 
 if __name__ == '__main__':
     with open('configs.json', 'r') as file:

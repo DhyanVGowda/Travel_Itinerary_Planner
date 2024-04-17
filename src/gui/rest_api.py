@@ -3,7 +3,7 @@ import json
 import requests
 import pandas as pd
 
-with open('../configs.json', 'r') as file:
+with open('../backend/configs.json', 'r') as file:
     configs = json.load(file)
 FLASK_SERVER_URL = "http://127.0.0.1:" + configs["port"]
 
@@ -204,3 +204,12 @@ def update_destination_info(destination_update_data):
     # You need to implement this function according to your API's requirements
     response = requests.put(f"{FLASK_SERVER_URL}/updateDestination/{destination_update_data['destination_id']}", json=destination_update_data)
     return response.ok
+
+def fetch_all_trips():
+    response = requests.get(f"{FLASK_SERVER_URL}/allTrips")
+    if response.status_code == 200:
+        trips_data = response.json()  # Assuming the JSON response is directly a list of dictionaries
+        trips_df = pd.DataFrame(trips_data)
+        return trips_df, None
+    else:
+        return pd.DataFrame(), "Failed to fetch all trips."
