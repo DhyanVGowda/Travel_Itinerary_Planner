@@ -287,7 +287,7 @@ END //
  END //
 
  -- Procedure to add a trip's destination
- CREATE PROCEDURE update_trip_destination(
+ CREATE PROCEDURE add_trip_destination(
      IN dest_id INT,
      IN trip_id INT,
      IN transport_mode TEXT,
