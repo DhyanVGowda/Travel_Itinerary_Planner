@@ -32,7 +32,7 @@ class CustomEncoder(json.JSONEncoder):
 def get_trips(email):
     try:
         cursor = connection.cursor()
-        cursor.callproc('GetTripsByTravellerEmail', [email])
+        cursor.callproc('get_trips_by_traveller_email', [email])
         trips_raw = cursor.fetchall()
         # Assuming you know the column names or using cursor.description to get them
         columns = [col[0] for col in cursor.description]
@@ -468,8 +468,6 @@ def login():
         if traveller:
             phone_number = traveller[1]
             if phone_number == password:
-                print("Login successful")
-                print("Traveller Details:")
                 return jsonify(traveller), 200
             else:
                 return jsonify({'error': 'Incorrect password'}), 401
