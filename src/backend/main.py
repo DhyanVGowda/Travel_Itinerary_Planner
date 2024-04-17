@@ -289,10 +289,11 @@ def add_home_stay():
     is_pet_allowed = check_empty(data['is_pet_allowed'])
     try:
         cursor = connection.cursor()
-        cursor.callproc('add_homestay_accommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
-                                                     checkout_date, street_name, street_number, city, state, zipcode,
-                                                     destination_id, number_of_rooms, is_cook_available, stay_type,
-                                                     is_pet_allowed))
+        cursor.callproc('add_homestay_accommodation',
+                        (accommodation_name, cost_per_night, telephone_number, checkin_date,
+                         checkout_date, street_name, street_number, city, state, zipcode,
+                         destination_id, number_of_rooms, is_cook_available, stay_type,
+                         is_pet_allowed))
 
         # Commit the transaction
         connection.commit()
@@ -324,8 +325,8 @@ def add_hotel():
     try:
         cursor = connection.cursor()
         cursor.callproc('add_hotel_accommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
-                                                  checkout_date, street_name, street_number, city, state, zipcode,
-                                                  destination_id, number_of_rooms, meal, star_rating))
+                                                    checkout_date, street_name, street_number, city, state, zipcode,
+                                                    destination_id, number_of_rooms, meal, star_rating))
 
         # Commit the transaction
         connection.commit()
@@ -358,8 +359,8 @@ def add_hostel():
     try:
         cursor = connection.cursor()
         cursor.callproc('add_hostel_accommodation', (accommodation_name, cost_per_night, telephone_number, checkin_date,
-                                                   checkout_date, street_name, street_number, city, state, zipcode,
-                                                   destination_id, meal, bath_type, wifi, mixed_dorm))
+                                                     checkout_date, street_name, street_number, city, state, zipcode,
+                                                     destination_id, meal, bath_type, wifi, mixed_dorm))
 
         # Commit the transaction
         connection.commit()
@@ -746,7 +747,7 @@ def update_traveller(email_id):
     try:
         cursor = connection.cursor()
         cursor.callproc('update_traveller', (email_id, first_name, last_name, unit_number,
-                                            street_name, street_number, city, state, zipcode))
+                                             street_name, street_number, city, state, zipcode))
         connection.commit()
         return jsonify({'message': 'Traveller updated successfully'}), 200
     except Error as e:
@@ -756,19 +757,23 @@ def update_traveller(email_id):
         cursor.close()
 
 
-@app.route('/updateDestination//<int:destination_id>', methods=['PUT'])
-def update_destination(destination_id):
+@app.route('/updateDestination/<int:trip_id>/<int:destination_id>', methods=['PUT'])
+def update_destination(trip_id, destination_id):
     data = request.json
     destination_name = data.get('destination_name')
     country = data.get('country')
     arrival_date = data.get('arrival_date')
     departure_date = data.get('departure_date')
+    travel_dur = data.get('travel_duration')
+    transport_mode = data.get('transport_mode')
     try:
         cursor = connection.cursor()
         cursor.callproc('update_destination', (destination_id, destination_name, country, arrival_date, departure_date))
+        cursor.callproc('update_trip_has_destination', (destination_id, trip_id, transport_mode, travel_dur))
         connection.commit()
         return jsonify({'message': 'Destination updated successfully'}), 200
     except Error as e:
+        connection.rollback()
         print("Failed to update destination: ", str(e))
         return jsonify({'error': str(e)}), 500
     finally:

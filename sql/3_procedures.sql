@@ -30,7 +30,7 @@ DROP PROCEDURE IF EXISTS get_destination_popularity_over_time;
 DROP PROCEDURE IF EXISTS get_common_packing_items;
 DROP PROCEDURE IF EXISTS get_average_activity_cost_by_country;
 DROP PROCEDURE IF EXISTS get_accommodation_choices_by_travel_duration;
-
+DROP PROCEDURE IF EXISTS update_trip_has_destination;
 
 DELIMITER //
 
@@ -287,7 +287,7 @@ END //
  END //
 
  -- Procedure to add a trip's destination
- CREATE PROCEDURE add_trip_destination(
+ CREATE PROCEDURE update_trip_destination(
      IN dest_id INT,
      IN trip_id INT,
      IN transport_mode TEXT,
@@ -296,6 +296,21 @@ END //
  BEGIN
      INSERT INTO trip_has_destination (destination_id, trip_id, transportation_mode, travel_duration)
      VALUES (dest_id, trip_id, transport_mode, travel_dur);
+ END //
+
+ -- Procedure to update a trip has destination
+ CREATE PROCEDURE update_trip_has_destination(
+     IN p_dest_id INT,
+     IN p_trip_id INT,
+     IN p_transport_mode TEXT,
+     IN p_travel_dur TIME
+ )
+ BEGIN
+     UPDATE trip_has_destination
+     SET transportation_mode = p_transport_mode,
+     travel_duration = p_travel_dur
+     WHERE
+     trip_id = p_trip_id AND destination_id = p_dest_id;
  END //
 
  -- Procedure to add a trip's essential item
