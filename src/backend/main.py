@@ -1,14 +1,13 @@
 from decimal import Decimal
 from time import time
-
+from sql_db_connector import connect_to_database
 from flask import Flask, Response, jsonify, request
 import json
 import datetime
 import pymysql
 from pymysql.err import Error
 
-
-# After creating the Flask app
+app = Flask(__name__)
 
 
 class CustomEncoder(json.JSONEncoder):
@@ -27,22 +26,6 @@ class CustomEncoder(json.JSONEncoder):
         elif isinstance(obj, time):
             return obj.strftime('%H:%M:%S')
         return super().default(obj)
-
-
-app = Flask(__name__)
-
-
-def connect_to_database(username, password):
-    try:
-        return pymysql.connect(host='localhost',
-                               user=username,
-                               password=password,
-                               database='travel_itinerary',
-                               charset='utf8mb4')
-
-    except pymysql.Error as e:
-        code, msg = e.args
-        print("Cannot connect to the database", code, msg)
 
 
 @app.route('/trips/<email>', methods=['GET'])
@@ -793,6 +776,7 @@ def update_destination(destination_id):
     finally:
         cursor.close()
 
+
 @app.route('/allTrips', methods=['GET'])
 def all_trips():
     cursor = connection.cursor()
@@ -895,7 +879,7 @@ def traveler_trip_counts_and_expenses():
 
 
 if __name__ == '__main__':
-    with open('configs.json', 'r') as file:
+    with open('../configs.json', 'r') as file:
         configs = json.load(file)
     connection = connect_to_database(configs["db_username"], configs["db_password"])
     if connection is not None:

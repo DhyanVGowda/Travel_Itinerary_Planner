@@ -3,7 +3,7 @@ import json
 import requests
 import pandas as pd
 
-with open('../backend/configs.json', 'r') as file:
+with open('../configs.json', 'r') as file:
     configs = json.load(file)
 FLASK_SERVER_URL = "http://127.0.0.1:" + configs["port"]
 
