@@ -116,10 +116,10 @@ END //
 -- Procedure to delete a trip's destination by destination ID and trip ID
 CREATE PROCEDURE delete_trip_destination(
     IN dest_id INT,
-    IN trip_id INT
+    IN p_trip_id INT
 )
 BEGIN
-    DELETE FROM Trip_Has_Destination WHERE destination_id = dest_id AND trip_id = trip_id;
+    DELETE FROM Trip_Has_Destination WHERE (destination_id = dest_id AND trip_id = p_trip_id);
 END //
 
  -- Procedure to add a new expense
