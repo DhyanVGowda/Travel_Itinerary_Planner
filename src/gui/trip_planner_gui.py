@@ -102,8 +102,9 @@ def display_trips():
 
                 with st.form("add_traveller_form", clear_on_submit=True):
                     st.subheader('Add Traveller to Trip')
-                    trip_options = list(trips_df['Trip Id'])
-                    selected_trip_id = st.selectbox('Select Trip ID', trip_options)
+                    trip_options_add = trips_df['Trip Id'].unique()
+                    trip_options_add = [int(trip_id) for trip_id in trip_options_add]
+                    selected_trip_id = st.selectbox('Select Trip ID', trip_options_add)
                     traveller_email = st.text_input('New Traveller Email')
                     submit_add_traveller = st.form_submit_button('Add Traveller')
 
@@ -124,8 +125,9 @@ def display_trips():
                                 st.error(f'Failed to add traveller to the trip. Error: {response.json()["error"]}')
 
             with st.expander("Delete Trip"):
-                trip_options = list(trips_df['Trip Id'])
-                selected_trip_id = st.selectbox('Select Trip ID', trip_options)
+                trip_options_add = trips_df['Trip Id'].unique()
+                trip_options_add = [int(trip_id) for trip_id in trip_options_add]
+                selected_trip_id = st.selectbox('Select Trip ID', trip_options_add)
                 if st.button('Delete Trip'):
                     response = delete_trip(selected_trip_id)
                     if response.status_code == 200:
@@ -523,14 +525,15 @@ def display_destinations():
 
             with st.form("add_destination_form", clear_on_submit=True):
                 st.subheader("Add Destination to Trip")
-                trip_options_add = list(trips_df['Trip Id'])
+                trip_options_add = trips_df['Trip Id'].unique()
+                trip_options_add = [int(trip_id) for trip_id in trip_options_add]
                 selected_trip_id_add = st.selectbox('Select Trip ID', trip_options_add)
                 destination_name = st.text_input('Destination Name')
                 country = st.text_input('Country')
                 arrival_date = st.date_input('Arrival Date', None)
                 departure_date = st.date_input('Departure Date', None)
                 transport_mode = st.text_input('Transport Mode')
-                travel_duration = st.text_input('Travel Duration (in hours)')
+                travel_duration = st.text_input('Travel Duration (in HH:mm format)')
                 submit_button = st.form_submit_button('Add Destination')
                 if submit_button:
                     if not destination_name or not country:
@@ -737,8 +740,9 @@ def display_expenses():
     if 'user_email' in st.session_state:
         trips_df, error = fetch_trips(st.session_state['user_email'])
         if not trips_df.empty:
-            trip_options = list(trips_df['Trip Id'])
-            selected_trip_id = st.selectbox('Select a Trip ID to manage expenses', trip_options)
+            trip_options_add = trips_df['Trip Id'].unique()
+            trip_options_add = [int(trip_id) for trip_id in trip_options_add]
+            selected_trip_id = st.selectbox('Select a Trip ID to manage expenses', trip_options_add)
 
             expenses, error = fetch_expenses(selected_trip_id)
             if expenses:
