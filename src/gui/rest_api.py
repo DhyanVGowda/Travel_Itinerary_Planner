@@ -84,7 +84,7 @@ def get_activities(trip_ids):
         return pd.DataFrame(), "Failed to fetch activities."
 
 
-def delete_destination(destination_id, trip_id):
+def delete_destination(trip_id, destination_id):
     # Make a DELETE request to the delete trip API endpoint
     response = requests.delete(f"{FLASK_SERVER_URL}/deleteDestination/{trip_id}/{destination_id}")
     return response
