@@ -1,5 +1,3 @@
-Here’s the entire README content in a single Markdown format:
-
 # Travel Itinerary Planner
 
 Welcome to the **Travel Itinerary Planner**! This project is designed to simplify trip planning and coordination by allowing users to create, manage, and share detailed travel itineraries. It integrates a Flask backend with a Streamlit frontend and a MySQL database for robust data management.
@@ -32,11 +30,8 @@ Welcome to the **Travel Itinerary Planner**! This project is designed to simplif
 - **Using `requirements.txt`:**
   ```bash
   pip install -r requirements.txt
-
-	•	Required Libraries:
-	•	Flask
-	•	Streamlit
-	•	Pandas- **Required Libraries:**
+ 
+- **Required Libraries:**
   - Flask
   - Streamlit
   - Pandas
